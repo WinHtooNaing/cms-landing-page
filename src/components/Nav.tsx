@@ -9,7 +9,7 @@ const Navbar = () => {
     setIsDarkMode((prev) => !prev)
   }
   return (
-    <div className="fixed top-0 ml-[10%] flex w-[80%] items-center justify-between py-4">
+    <div className="fixed top-0 m-auto flex w-full place-items-center items-center justify-between border-b-2 px-10 py-4">
       <h1 className="text-2xl font-bold">Tech Haven</h1>
       <div className="flex items-center gap-5 max-sm:hidden">
         <NavLink to="/">Home</NavLink>

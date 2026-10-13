@@ -1,7 +1,11 @@
 import React from "react"
 
 const Contactpage = () => {
-  return <div>ContactPage</div>
+  return (
+    <>
+      <section className="mt-20">Contack us</section>
+    </>
+  )
 }
 
 export default Contactpage
