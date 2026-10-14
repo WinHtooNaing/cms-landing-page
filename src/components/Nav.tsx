@@ -23,7 +23,7 @@ const Navbar = () => {
   }
   return (
     <>
-      <nav className="fixed top-0 m-auto flex w-full place-items-center items-center justify-between border-b-2 px-10 py-4">
+      <nav className="fixed top-0 m-auto flex w-full place-items-center items-center justify-between border-b-2 bg-white px-10 py-4 shadow-md">
         <h1 className="text-2xl font-bold">Tech Haven</h1>
         <div className="flex items-center gap-5 max-sm:hidden">
           {navLinks.map((link) => (
