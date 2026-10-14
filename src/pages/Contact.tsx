@@ -1,7 +1,206 @@
-import React from "react"
+import { Mail, Send, Phone, MapPin, Clock, MessageCircle } from "lucide-react"
 
+import { Input } from "@/components/ui/input"
+
+import { Button } from "@/components/ui/button"
+import { Textarea } from "@/components/ui/textarea"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
 const Contactpage = () => {
-  return <div>ContactPage</div>
+  const contactDetails = [
+    {
+      icon: Mail,
+      title: "Email Us",
+      description: "Send us an email anytime.",
+      value: "support@techhaven.com",
+    },
+    {
+      icon: Phone,
+      title: "Call Us",
+      description: "Our team is ready to help.",
+      value: "+95 9 123 456 789",
+    },
+    {
+      icon: MapPin,
+      title: "Visit Us",
+      description: "Come and visit our store.",
+      value: "Yangon, Myanmar",
+    },
+    {
+      icon: Clock,
+      title: "Business Hours",
+      description: "We're available during:",
+      value: "Mon – Fri, 8:30 AM – 5:00 PM",
+    },
+  ]
+
+  return (
+    <>
+      <main className="min-h-screen bg-slate-50 px-4 pt-28 pb-16 sm:px-6 lg:px-10">
+        <div className="mx-auto max-w-7xl">
+          <div className="mb-12 text-center">
+            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-blue-100 bg-blue-50 px-4 py-2 text-sm font-medium text-blue-700">
+              <MessageCircle /> We'd Love to Hear From You
+            </div>
+
+            <h1 className="mb-4 text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl">
+              Contact <span className="text-blue-600">Us</span>
+            </h1>
+
+            <p className="mx-auto max-w-2xl text-base leading-7 text-slate-600 sm:text-lg">
+              Have a question about our products or need help with an order? Our
+              team at Tech Haven is here to help you find the right technology
+              for your needs.
+            </p>
+          </div>
+
+          <div className="grid gap-8 lg:grid-cols-5">
+            <section className="lg:col-span-2">
+              <div className="h-full rounded-2xl bg-slate-900 p-6 text-white shadow-lg sm:p-8">
+                <h2 className="mb-3 text-2xl font-bold">Get in Touch</h2>
+
+                <p className="mb-8 leading-7 text-slate-300">
+                  Whether you have questions, feedback, or need assistance,
+                  we're always happy to hear from you.
+                </p>
+                <div className="space-y-7">
+                  {contactDetails.map((item) => {
+                    const Icon = item.icon
+
+                    return (
+                      <div key={item.title} className="flex items-start gap-4">
+                        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-blue-600">
+                          <Icon className="h-5 w-5" />
+                        </div>
+
+                        <div>
+                          <h3 className="mb-1 font-semibold">{item.title}</h3>
+
+                          <p className="mb-1 text-sm text-slate-300">
+                            {item.description}
+                          </p>
+
+                          <p className="wrap-break text-sm font-medium">
+                            {item.value}
+                          </p>
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+                <div className="mt-10 border-t border-slate-700 pt-6">
+                  <p className="text-sm leading-6 text-slate-300">
+                    Your satisfaction matters to us. Let us know how we can make
+                    your Tech Haven experience better.
+                  </p>
+                </div>
+              </div>
+            </section>
+            <section className="lg:col-span-3">
+              <Card className="h-full rounded-2xl border-slate-200 shadow-sm">
+                <CardHeader className="p-6 sm:p-8">
+                  <CardTitle className="text-2xl">Send Us a Message</CardTitle>
+
+                  <CardDescription className="text-base">
+                    Fill out the form below and tell us how we can help.
+                  </CardDescription>
+                </CardHeader>
+
+                <CardContent className="px-6 pb-8 sm:px-8">
+                  <form className="space-y-5">
+                    <div className="grid gap-5 sm:grid-cols-2">
+                      <div className="space-y-2">
+                        <label htmlFor="name" className="text-sm font-medium">
+                          Full Name
+                        </label>
+
+                        <Input
+                          id="name"
+                          name="name"
+                          placeholder="Enter your full name"
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <label htmlFor="email" className="text-sm font-medium">
+                          Email Address
+                        </label>
+
+                        <Input
+                          id="email"
+                          name="email"
+                          type="email"
+                          placeholder="you@example.com"
+
+                          required
+                          autoComplete="email"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <label htmlFor="subject" className="text-sm font-medium">
+                        Subject
+                      </label>
+
+                      <Input
+                        id="subject"
+                        name="subject"
+                        placeholder="What is your message about?"
+
+                        required
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <label htmlFor="message" className="text-sm font-medium">
+                        Your Message
+                      </label>
+
+                      <Textarea
+                        id="message"
+                        name="message"
+                        placeholder="Write your message here..."
+
+                        required
+                        minLength={10}
+                        rows={6}
+                        className="resize-none"
+                      />
+                    </div>
+                    <Button
+                      type="submit"
+                      className="align-center w-full gap-2 bg-blue-600 py-6 text-base hover:bg-blue-700 sm:w-auto"
+                    >
+                      Send Message
+                    </Button>
+                    <p className="text-xs leading-5 text-slate-500">
+                      We'll use your information to respond to your inquiry.
+                    </p>
+                  </form>
+                </CardContent>
+              </Card>
+            </section>
+          </div>
+          <div className="mt-12 rounded-2xl border border-slate-200 bg-white p-6 text-center sm:p-8">
+            <h2 className="mb-2 text-xl font-bold text-slate-900">
+              Still Have Questions?
+            </h2>
+
+            <p className="text-slate-600">
+              We're happy to help you find the right products and solutions for
+              your needs.
+            </p>
+          </div>
+        </div>
+      </main>
+    </>
+  )
 }
 
 export default Contactpage

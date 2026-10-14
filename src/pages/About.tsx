@@ -1,7 +1,9 @@
-import React from "react"
-
 const Aboutpage = () => {
-  return <div>AboutPage</div>
+  return (
+    <>
+      <section className="mt-20">About Page</section>
+    </>
+  )
 }
 
 export default Aboutpage
