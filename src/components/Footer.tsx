@@ -39,19 +39,18 @@ const Footer = () => {
           <div>
             <Link
               to="/"
-              className="inline-block text-2xl font-bold tracking-tight text-slate-400"
+              className="inline-block text-2xl font-bold tracking-tight text-slate-500"
             >
               Tech Haven
             </Link>
 
-            <p className="mt-5 max-w-xs text-sm leading-7 text-slate-400">
-              Your trusted destination for modern technology. Discover quality
-              electronics, explore the latest products, and find the right
-              technology for your needs.
+            <p className="mt-5 max-w-xs text-sm leading-7 font-bold text-slate-500">
+              Discover quality electronics, explore the latest products, and
+              find the right technology for your needs.
             </p>
           </div>
           <div>
-            <h3 className="mb-5 text-base font-semibold text-slate-400">
+            <h3 className="mb-5 text-base font-semibold text-slate-500">
               Quick Links
             </h3>
 
@@ -60,7 +59,7 @@ const Footer = () => {
                 <li key={link.path}>
                   <Link
                     to={link.path}
-                    className="inline-flex items-center gap-1 text-sm text-slate-400 transition-colors hover:text-blue-400"
+                    className="inline-flex items-center gap-1 text-sm text-slate-500 transition-colors hover:text-blue-400"
                   >
                     {link.name}
                   </Link>
@@ -69,7 +68,7 @@ const Footer = () => {
             </ul>
           </div>
           <div>
-            <h3 className="mb-5 text-base font-semibold text-slate-400">
+            <h3 className="mb-5 text-base font-semibold text-slate-500">
               Support Links
             </h3>
 
@@ -78,7 +77,7 @@ const Footer = () => {
                 <li key={link.path}>
                   <Link
                     to={link.path}
-                    className="inline-flex items-center gap-1 text-sm text-slate-400 transition-colors hover:text-blue-400"
+                    className="inline-flex items-center gap-1 text-sm text-slate-500 transition-colors hover:text-blue-400"
                   >
                     {link.name}
                   </Link>
@@ -87,11 +86,11 @@ const Footer = () => {
             </ul>
           </div>
           <div>
-            <h3 className="mb-5 text-base font-semibold text-slate-400">
+            <h3 className="mb-5 text-base font-semibold text-slate-500">
               Get in Touch
             </h3>
 
-            <ul className="space-y-4 text-slate-400">
+            <ul className="space-y-4 text-slate-500">
               <li className="flex items-start gap-3">
                 <Mail className="mt-0.5 h-5 w-5 shrink-0 text-blue-500" />
 
@@ -142,16 +141,16 @@ const Footer = () => {
       </div>
       <div className="border-t border-slate-800">
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-6 py-6 text-center sm:px-10 md:flex-row md:text-left">
-          <p className="text-sm text-slate-400">
+          <p className="text-sm text-slate-500">
             © {currentYear} Tech Haven. All rights reserved.
           </p>
 
           <div className="flex flex-wrap items-center justify-center gap-5 text-sm">
-            <Link to="/contact" className="text-slate-400 hover:text-blue-400">
+            <Link to="/contact" className="text-slate-500 hover:text-blue-400">
               Privacy Policy
             </Link>
 
-            <Link to="/contact" className="text-slate-400 hover:text-blue-400">
+            <Link to="/contact" className="text-slate-500 hover:text-blue-400">
               Terms & Conditions
             </Link>
           </div>

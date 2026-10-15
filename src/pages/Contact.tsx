@@ -1,4 +1,4 @@
-import { Mail, Send, Phone, MapPin, Clock, MessageCircle } from "lucide-react"
+import { Mail, Phone, MapPin, Clock, MessageCircle } from "lucide-react"
 
 import { Input } from "@/components/ui/input"
 
@@ -59,12 +59,12 @@ const Contactpage = () => {
             </p>
           </div>
 
-          <div className="grid gap-8 lg:grid-cols-5">
+          <div className="grid gap-8 text-slate-800 lg:grid-cols-5">
             <section className="lg:col-span-2">
-              <div className="h-full rounded-2xl bg-slate-900 p-6 text-white shadow-lg sm:p-8">
+              <div className="h-full rounded-2xl bg-white p-6 text-slate-800 shadow-lg sm:p-8">
                 <h2 className="mb-3 text-2xl font-bold">Get in Touch</h2>
 
-                <p className="mb-8 leading-7 text-slate-300">
+                <p className="mb-8 leading-7">
                   Whether you have questions, feedback, or need assistance,
                   we're always happy to hear from you.
                 </p>
@@ -74,14 +74,14 @@ const Contactpage = () => {
 
                     return (
                       <div key={item.title} className="flex items-start gap-4">
-                        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-blue-600">
+                        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-blue-50 hover:bg-blue-100">
                           <Icon className="h-5 w-5" />
                         </div>
 
                         <div>
                           <h3 className="mb-1 font-semibold">{item.title}</h3>
 
-                          <p className="mb-1 text-sm text-slate-300">
+                          <p className="mb-1 text-sm text-slate-800">
                             {item.description}
                           </p>
 
@@ -94,7 +94,7 @@ const Contactpage = () => {
                   })}
                 </div>
                 <div className="mt-10 border-t border-slate-700 pt-6">
-                  <p className="text-sm leading-6 text-slate-300">
+                  <p className="text-sm leading-6 text-slate-800">
                     Your satisfaction matters to us. Let us know how we can make
                     your Tech Haven experience better.
                   </p>
