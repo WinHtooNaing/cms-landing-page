@@ -56,12 +56,12 @@ const CategoryList = () => {
   return (
     <div className="mt-10">
       <div className="flex items-center justify-between px-2 pb-10">
-        <p className="text-lg">Shop By Category</p>
+        <p className="text-md sm:text-lg">Shop By Category</p>
         <p className="text-md cursor-pointer text-gray-500">see all</p>
       </div>
       <div>
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {categories.map((category) => (
+          {categories.slice(0, 6).map((category) => (
             <Card>
               <CardContent className="">
                 <img

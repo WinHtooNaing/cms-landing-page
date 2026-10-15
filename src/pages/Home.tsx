@@ -4,7 +4,7 @@ import ProductLists from "@/components/homepage/ProductLists"
 
 const Homepage = () => {
   return (
-    <div className="mx-auto mt-20 w-[90%]">
+    <div className="mx-auto mt-30 w-[90%]">
       <ImageCaarousel />
       <CategoryList />
       <ProductLists />

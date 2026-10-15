@@ -4,6 +4,7 @@ import Homepage from "./pages/Home"
 import { createBrowserRouter, RouterProvider } from "react-router-dom"
 import Productspage from "./pages/Products"
 import Contactpage from "./pages/Contact"
+import ProductDetails from "./pages/ProductDetails"
 
 export function App() {
   const router = createBrowserRouter([
@@ -26,6 +27,10 @@ export function App() {
         {
           path: "/contact",
           element: <Contactpage />,
+        },
+        {
+          path: "/products/:id",
+          element: <ProductDetails />,
         },
       ],
     },
