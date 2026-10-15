@@ -207,7 +207,7 @@ export const products = [
     description:
       "Clean your home efficiently with powerful cordless suction, intelligent dust detection, and versatile attachments for different floor types and surfaces.",
     stock: 5,
-    rating: 4.8,
+    rating: 3.8,
   },
 ]
 
