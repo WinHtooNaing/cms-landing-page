@@ -1,5 +1,5 @@
 import { Card, CardContent } from "@/components/ui/card"
-import { Button } from "../ui/button"
+import { Link } from "react-router-dom"
 import { products } from "../../data"
 import {
   Pagination,
@@ -19,7 +19,7 @@ const ProductLists = () => {
   const currentProducts = products.slice(startIndex, endIndex)
 
   const scrollHead = useRef<HTMLDivElement>(null)
-  //scroll to top
+
   const scrollToHeader = () => {
     scrollHead.current?.scrollIntoView({
       behavior: "smooth",
@@ -52,7 +52,12 @@ const ProductLists = () => {
                   <p className="font-semibold">{product.price} ks</p>
                 </div>
                 <div>
-                  <Button>See Details</Button>
+                  <Link
+                    to={`/products/${product.id}`}
+                    className="inline-flex h-10 w-30 items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow transition-colors hover:bg-primary/90"
+                  >
+                    Buy Now
+                  </Link>
                 </div>
               </div>
             </CardContent>
