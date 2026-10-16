@@ -1,5 +1,4 @@
 import { Card, CardContent } from "@/components/ui/card"
-import { Button } from "../ui/button"
 import { ShoppingCartPlus, Star } from "lucide-react"
 import { cn } from "cn"
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip"
@@ -92,9 +91,12 @@ const ProductLists = ({ products, current, setCurrent }: ProductListsProps) => {
                         <TooltipContent>Add to cart</TooltipContent>
                       </Tooltip>
                     </div>
-                    <Button className="h-10 w-30">
-                      <Link to={`/products/${product.id}`}>Buy Now</Link>
-                    </Button>
+                    <Link
+                      to={`/products/${product.id}`}
+                      className="inline-flex h-10 w-30 items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow transition-colors hover:bg-primary/90"
+                    >
+                      Buy Now
+                    </Link>
                   </div>
                 </div>
               </CardContent>
