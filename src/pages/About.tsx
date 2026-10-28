@@ -87,22 +87,6 @@ const Aboutpage = () => {
                 technology should be simple, convenient, and accessible to
                 everyone.
               </p>
-              {/* <div className="mt-8 flex flex-wrap gap-4">
-                <Button
-                  size="lg"
-                  className="bg-primary text-primary-foreground hover:bg-primary/90"
-                >
-                  <Link to="/products">Explore Products</Link>
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="border-border bg-transparent text-foreground hover:bg-accent hover:text-accent-foreground"
-                >
-                  <Link to="/contact">Contact us</Link>
-                </Button>
-              </div> */}
             </div>
           </div>
         </section>
