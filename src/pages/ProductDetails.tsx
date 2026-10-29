@@ -5,8 +5,10 @@ import { Card, CardContent } from "../components/ui/card"
 import { ShoppingCart, Star } from "lucide-react"
 import { cn } from "../lib/utils"
 import RelatedProduct from "@/components/RelatedProduct"
+import { useCartStore } from "@/store/cart-store"
 const ProductDetails = () => {
   const { id } = useParams()
+  const addToCart = useCartStore((set) => set.addToCart)
 
   const product = products.find((item) => item.id === Number(id))
   if (!product) {
@@ -27,7 +29,7 @@ const ProductDetails = () => {
   return (
     <div className="container mx-auto px-4 pt-25">
       <Card className="overflow-hidden">
-        <CardContent className="grid grid-cols-1 gap-8 p-6 md:grid-cols-2 md:p-10">
+        <CardContent className="grid grid-cols-1 gap-8 p-6 md:grid-cols-[1fr_2fr] md:p-10">
           <div className="flex h-60 w-full items-center justify-center overflow-hidden rounded-md bg-white">
             <img
               src={product.image}
@@ -78,7 +80,7 @@ const ProductDetails = () => {
             </div>
 
             <div className="mt-8 flex flex-wrap gap-4">
-              <Button className="h-12">
+              <Button className="h-12" onClick={() => addToCart(product)}>
                 <ShoppingCart className="mr-2 h-5 w-5" />
                 Add to Cart
               </Button>
