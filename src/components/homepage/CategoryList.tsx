@@ -1,4 +1,7 @@
+import { Link } from "react-router-dom"
 import { Card, CardContent, CardFooter, CardTitle } from "../ui/card"
+import { useEffect, useState } from "react"
+import CategorySkeleton from "../skeleton/CategorySkeleton"
 
 const categories = [
   {
@@ -53,29 +56,49 @@ const categories = [
   },
 ]
 const CategoryList = () => {
+  const [loading, SetLoading] = useState(true)
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      SetLoading(false)
+    }, 3000)
+    return () => clearTimeout(timer)
+  }, [])
   return (
     <div className="mt-10">
       <div className="flex items-center justify-between px-2 pb-10">
-        <p className="text-md sm:text-lg">Shop By Category</p>
-        <p className="text-md cursor-pointer text-gray-500">see all</p>
+        <p className="text-md font-semibold text-primary sm:text-lg">
+          Shop By Category
+        </p>
+        <p className="text-md cursor-pointer text-gray-500">
+          <Link to="/products">see all</Link>
+        </p>
       </div>
       <div>
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {categories.slice(0, 6).map((category) => (
-            <Card>
-              <CardContent className="">
-                <img
-                  src={category.image}
-                  alt={category.name}
-                  className="h-50 w-full rounded-md object-cover"
-                />
-              </CardContent>
-              <CardFooter>
-                <CardTitle>{category.name}</CardTitle>
-              </CardFooter>
-            </Card>
-          ))}
-        </div>
+        {loading ? (
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {categories.slice(0, 6).map(() => (
+              <CategorySkeleton />
+            ))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {categories.slice(0, 6).map((category) => (
+              <Card>
+                <CardContent className="">
+                  <img
+                    src={category.image}
+                    alt={category.name}
+                    className="h-50 w-full rounded-md object-cover"
+                  />
+                </CardContent>
+                <CardFooter>
+                  <CardTitle>{category.name}</CardTitle>
+                </CardFooter>
+              </Card>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   )

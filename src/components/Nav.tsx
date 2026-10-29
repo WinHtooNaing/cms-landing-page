@@ -1,8 +1,10 @@
+import { useCartStore } from "@/store/cart-store"
 import { Menu, ShoppingCartPlus, X } from "lucide-react"
 import { useState } from "react"
-import { NavLink } from "react-router-dom"
-
+import { Link, NavLink } from "react-router-dom"
+import logo from "../assets/logo.png"
 const Navbar = () => {
+  const cart = useCartStore((state) => state.cart)
   const navLinks = [
     { name: "Home", path: "/" },
     { name: "Products", path: "/products" },
@@ -21,17 +23,15 @@ const Navbar = () => {
   }
 
   const navLinkClass = ({ isActive }: { isActive: boolean }) =>
-    `rounded-md px-4 py-3 transition-colors hover:bg-accent hover:text-accent-foreground ${
-      isActive
-        ? "bg-secondary font-semibold text-foreground"
-        : "text-muted-foreground"
+    `rounded-md px-4 py-3 transition-colors  hover:text-accent-foreground ${
+      isActive ? " font-semibold text-primary" : "text-muted-foreground"
     }`
 
   return (
     <>
       <nav className="fixed top-0 z-50 flex w-full items-center justify-between border-b border-border bg-background px-4 py-4 text-foreground shadow-sm md:px-10">
         <NavLink to="/" className="text-2xl font-bold tracking-tight">
-          Tech Haven
+          <img src={logo} alt="logo" className="" width={150} />
         </NavLink>
 
         <div className="ml-auto flex items-center gap-3 md:gap-5">
@@ -48,11 +48,13 @@ const Navbar = () => {
             aria-label="Shopping cart"
             className="relative rounded-md p-2 transition-colors hover:bg-accent"
           >
-            <ShoppingCartPlus className="h-5 w-5" />
+            <Link to="/cart">
+              <ShoppingCartPlus className="h-5 w-5" />
 
-            <span className="absolute -top-1 -right-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1 text-xs font-bold text-primary-foreground">
-              2
-            </span>
+              <span className="absolute -top-1 -right-1 flex h-5 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-xs font-bold text-primary-foreground">
+                {cart.length}
+              </span>
+            </Link>
           </button>
 
           <div className="md:hidden">
@@ -96,7 +98,7 @@ const Navbar = () => {
             onClick={closeSidebar}
             className="text-xl font-bold tracking-tight"
           >
-            Tech Haven
+            <img src={logo} alt="logo" className="" width={150} />
           </NavLink>
 
           <button

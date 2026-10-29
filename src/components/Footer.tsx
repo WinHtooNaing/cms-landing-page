@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom"
 import { FaFacebook, FaInstagram, FaGithub } from "react-icons/fa"
 import { Phone, Mail, MapPin } from "lucide-react"
-
+import logo from "../assets/logo.png"
 const Footer = () => {
   const currentYear = new Date().getFullYear()
 
@@ -38,7 +38,7 @@ const Footer = () => {
   ]
 
   return (
-    <footer className="border-t border-border bg-background text-foreground">
+    <footer className="mt-20 border-t border-border bg-background text-foreground">
       <div className="mx-auto max-w-7xl px-6 py-10 sm:px-10 lg:py-12">
         <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-4 lg:gap-12">
           <div>
@@ -46,7 +46,7 @@ const Footer = () => {
               to="/"
               className="inline-block text-2xl font-bold tracking-tight text-foreground transition-colors hover:text-primary/80"
             >
-              Tech Haven
+              <img src={logo} alt="logo" width={150} />
             </Link>
 
             <p className="mt-5 max-w-xs text-sm leading-7 text-muted-foreground">
@@ -104,7 +104,7 @@ const Footer = () => {
 
                 <a
                   href="mailto:support@techhaven.com"
-                  className="text-sm break-all transition-colors hover:text-foreground"
+                  className="text-sm break-all transition-colors hover:text-primary"
                 >
                   support@techhaven.com
                 </a>
@@ -115,7 +115,7 @@ const Footer = () => {
 
                 <a
                   href="tel:+959123456789"
-                  className="text-sm transition-colors hover:text-foreground"
+                  className="text-sm transition-colors hover:text-primary"
                 >
                   +95 9 123 456 789
                 </a>
@@ -124,7 +124,9 @@ const Footer = () => {
               <li className="flex items-start gap-3">
                 <MapPin className="mt-0.5 h-5 w-5 shrink-0 text-foreground" />
 
-                <span className="text-sm leading-6">Yangon, Myanmar</span>
+                <span className="text-sm leading-6 hover:text-primary">
+                  Yangon, Myanmar
+                </span>
               </li>
             </ul>
 
@@ -139,7 +141,7 @@ const Footer = () => {
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label={social.name}
-                    className="flex h-10 w-10 items-center justify-center rounded-lg border border-border text-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+                    className="flex h-10 w-10 items-center justify-center rounded-lg border border-border text-foreground transition-colors hover:bg-accent hover:text-primary"
                   >
                     <Icon className="h-5 w-5" />
                   </a>
@@ -152,21 +154,21 @@ const Footer = () => {
 
       <div className="border-t border-border">
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-6 py-6 text-center sm:px-10 md:flex-row md:text-left">
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-primary">
             © {currentYear} Tech Haven. All rights reserved.
           </p>
 
           <div className="flex flex-wrap items-center justify-center gap-5 text-sm">
             <Link
               to="/contact"
-              className="text-muted-foreground transition-colors hover:text-foreground"
+              className="text-primary transition-colors hover:text-foreground"
             >
               Privacy Policy
             </Link>
 
             <Link
               to="/contact"
-              className="text-muted-foreground transition-colors hover:text-foreground"
+              className="text-primary transition-colors hover:text-foreground"
             >
               Terms &amp; Conditions
             </Link>
