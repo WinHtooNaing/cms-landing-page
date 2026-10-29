@@ -40,7 +40,7 @@ const Contactpage = () => {
   ]
 
   return (
-    <main className="min-h-screen bg-background px-4 pt-28 pb-16 text-foreground sm:px-6 lg:px-10">
+    <main className="min-h-screen bg-background px-4 pt-28 text-foreground sm:px-6 lg:px-10">
       <div className="mx-auto max-w-7xl">
         {/* Page Heading */}
         <div className="mb-12 text-center">

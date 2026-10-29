@@ -4,8 +4,10 @@ import { Link, useParams } from "react-router-dom"
 import { ShoppingCartPlus, Star } from "lucide-react"
 import { cn } from "cn"
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip"
+import { useCartStore } from "@/store/cart-store"
 const RelatedProduct = () => {
   const { id } = useParams()
+  const addToCart = useCartStore((set) => set.addToCart)
   const product = products.find((item) => item.id === Number(id))
   if (!product) return null
 
@@ -28,10 +30,19 @@ const RelatedProduct = () => {
                 />
               </div>
               <div className="py-4">
-                <p className="text-xl font-semibold">
-                  {item.name.slice(0, 15)}
-                  {item.name.length > 15 && "..."}
-                </p>
+                <Tooltip>
+                  <TooltipTrigger
+                    render={
+                      <p className="text-xl font-semibold">
+                        {item.name.slice(0, 15)}{" "}
+                        {item.name.length > 15 && "..."}
+                      </p>
+                    }
+                  />
+                  <TooltipContent>
+                    <p>{item.name}</p>
+                  </TooltipContent>
+                </Tooltip>
                 <div className="flex items-center gap-2 py-2">
                   <p className="text-gray-500 line-through">
                     {item.originalPrice}
@@ -57,7 +68,10 @@ const RelatedProduct = () => {
                   </small>
                 </div>
                 <div className="mt-2 flex w-full items-center gap-4">
-                  <div className="rounded-sm border border-black p-2">
+                  <div
+                    className="rounded-sm border border-black p-2"
+                    onClick={() => addToCart(product)}
+                  >
                     <Tooltip>
                       <TooltipTrigger render={<ShoppingCartPlus />} />
                       <TooltipContent>Add to cart</TooltipContent>

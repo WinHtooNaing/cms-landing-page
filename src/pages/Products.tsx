@@ -44,7 +44,7 @@ const Productspage = () => {
           <div className="mt-2 flex flex-col gap-4">
             <h1 className="md:text-md mb-2 text-sm font-bold">Sort By</h1>
             <div className="max-md:grid max-md:grid-cols-3">
-              <div className="flex gap-2">
+              <div className="mb-4 flex gap-2">
                 <Checkbox id="sort-oldest" />
                 <Label>Oldest</Label>
               </div>
