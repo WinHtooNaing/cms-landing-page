@@ -213,7 +213,7 @@ export const products = [
 
 export const category = [
   "Smartphone",
-  "Laptops",
+  "Laptop",
   "TV & Entertainment",
   "Gaming",
   "Cameras",

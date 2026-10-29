@@ -7,7 +7,6 @@ import {
   ShieldCheck,
   Lightbulb,
   Users,
-  ArrowRight,
   CheckCircle2,
   Zap,
   Headphones,
@@ -69,89 +68,76 @@ const Aboutpage = () => {
   ]
   return (
     <>
-      <main className="min-full bg-white pt-20">
-        <section className="relative overflow-hidden bg-white px-6 py-20 text-slate-800 sm:px-10 lg:py-28">
+      <main className="min-h-screen bg-background">
+        <section className="relative overflow-hidden bg-muted px-6 py-20 text-foreground sm:px-10 lg:py-28">
           <div className="mx-auto max-w-7xl">
-            <div className="max-w-3xl">
-              <span className="inline-flex rounded-full border border-blue-400/30 bg-blue-500/10 px-4 py-2 text-sm font-medium text-blue-500">
+            <div className="max-w-4xl pl-16">
+              <span className="inline-flex rounded-full border border-border bg-secondary px-4 py-2 text-sm font-medium text-secondary-foreground">
                 Get to Know Us
               </span>
 
-              <h1 className="mt-6 text-4xl leading-tight font-bold tracking-tight sm:text-5xl lg:text-6xl">
+              <h1 className="mt-6 text-4xl leading-tight font-bold tracking-tight sm:text-4xl lg:text-5xl">
                 Technology That
-                <span className="block text-blue-400">Moves You Forward.</span>
+                <span className="block text-primary">Moves You Forward.</span>
               </h1>
 
-              <p className="mt-6 max-w-2xl text-base leading-8 text-slate-800 sm:text-lg">
+              <p className="mt-6 max-w-4xl text-justify text-base leading-8 text-primary sm:text-lg">
                 Welcome to Tech Haven, your destination for discovering modern
                 technology and electronics. We believe that finding the right
                 technology should be simple, convenient, and accessible to
                 everyone.
               </p>
-              <div className="mt-8 flex flex-wrap gap-4">
-                <Button size="lg" className="bg-blue-500 hover:bg-blue-700">
-                  <Link to="/products">Explore Products</Link>
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="border-slate-600 bg-transparent text-slate-800 hover:bg-slate-300 hover:text-slate-950"
-                >
-                  <Link to="/contact">Contact us</Link>
-                </Button>
-              </div>
             </div>
           </div>
         </section>
-        <section className="px-6 py-16 sm:px-10 lg:py-24">
+        <section className="px-6 py-16 sm:px-10 lg:py-10">
           <div className="mx-auto grid max-w-7xl items-center gap-12 lg:grid-cols-2 lg:gap-20">
             <div className="relative">
-              <div className="flex min-h-80 items-center justify-center overflow-hidden rounded-3xl bg-linear-to-br from-blue-100 via-indigo-50 to-slate-100 p-8 sm:min-h-105">
+              <div className="flex min-h-80 items-center justify-center overflow-hidden rounded-3xl bg-linear-to-br from-muted via-background to-secondary p-8 sm:min-h-105">
                 <div className="max-w-sm text-center">
-                  <div className="mx-auto flex h-24 w-24 items-center justify-center rounded-3xl bg-blue-600 text-white shadow-xl shadow-blue-600/20">
+                  <div className="mx-auto flex h-24 w-24 items-center justify-center rounded-3xl bg-primary text-primary-foreground shadow-xl">
                     <Zap className="h-12 w-12" />
                   </div>
 
-                  <h3 className="mt-6 text-3xl font-bold text-slate-900">
+                  <h3 className="mt-6 text-3xl font-bold text-foreground">
                     Tech Haven
                   </h3>
 
-                  <p className="mt-3 leading-7 text-slate-600">
+                  <p className="mt-3 leading-7 text-muted-foreground">
                     Discover technology. Find your possibilities.
                   </p>
                 </div>
               </div>
 
-              <div className="absolute right-4 -bottom-6 rounded-2xl border border-slate-100 bg-white p-4 shadow-lg sm:right-8 sm:p-5">
-                <p className="text-sm font-medium text-slate-500">
+              <div className="absolute right-4 -bottom-6 rounded-2xl border border-border bg-card p-4 shadow-lg sm:right-8 sm:p-5">
+                <p className="text-sm font-medium text-muted-foreground">
                   Our Commitment
                 </p>
 
-                <p className="mt-1 font-bold text-slate-900">
+                <p className="mt-1 font-bold text-foreground">
                   Quality. Trust. Innovation.
                 </p>
               </div>
             </div>
 
             <div className="pt-4 lg:pt-0">
-              <span className="text-sm font-semibold tracking-widest text-blue-600 uppercase">
+              <span className="text-sm font-semibold tracking-widest text-primary uppercase">
                 Who We Are
               </span>
 
-              <h2 className="mt-4 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
+              <h2 className="mt-4 text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
                 Making Technology
-                <span className="block text-blue-600">Easier for Everyone</span>
+                <span className="block text-primary">Easier for Everyone</span>
               </h2>
 
-              <p className="mt-6 leading-8 text-slate-600">
+              <p className="mt-6 leading-8 text-muted-foreground">
                 At Tech Haven, we want to make exploring technology easier for
                 everyone. Our platform brings technology products together in
                 one place, helping customers discover options that match their
                 interests and needs.
               </p>
 
-              <p className="mt-4 leading-8 text-slate-600">
+              <p className="mt-4 leading-8 text-muted-foreground">
                 From everyday electronics to modern tech accessories, we aim to
                 provide a convenient browsing experience, useful product
                 information, and responsive customer support.
@@ -163,9 +149,9 @@ const Aboutpage = () => {
                   "Customer-focused service",
                 ].map((item) => (
                   <div key={item} className="flex items-center gap-3">
-                    <CheckCircle2 className="h-5 w-5 shrink-0 text-blue-600" />
+                    <CheckCircle2 className="h-5 w-5 shrink-0 text-primary" />
 
-                    <span className="text-sm font-medium text-slate-700 sm:text-base">
+                    <span className="text-sm font-medium text-foreground sm:text-base">
                       {item}
                     </span>
                   </div>
@@ -174,35 +160,35 @@ const Aboutpage = () => {
             </div>
           </div>
         </section>
-        <section className="bg-slate-50 px-6 py-16 sm:px-10 lg:py-20">
+        <section className="bg-muted px-6 py-16 sm:px-10 lg:py-20">
           <div className="mx-auto max-w-7xl">
             <div className="mb-12 text-center">
-              <span className="text-sm font-semibold tracking-widest text-blue-600 uppercase">
+              <span className="text-sm font-semibold tracking-widest text-primary uppercase">
                 Our Purpose
               </span>
 
-              <h2 className="mt-3 text-3xl font-bold text-slate-900 sm:text-4xl">
+              <h2 className="mt-3 text-3xl font-bold text-foreground sm:text-4xl">
                 Our Mission & Vision
               </h2>
 
-              <p className="mx-auto mt-4 max-w-2xl leading-7 text-slate-600">
+              <p className="mx-auto mt-4 max-w-2xl leading-7 text-muted-foreground">
                 Everything we do is guided by our commitment to making
                 technology easier to discover and understand.
               </p>
             </div>
 
             <div className="grid gap-6 md:grid-cols-2">
-              <Card className="rounded-2xl border-slate-200 shadow-sm transition-shadow hover:shadow-md">
+              <Card className="rounded-2xl border-border shadow-sm transition-shadow hover:shadow-md">
                 <CardContent className="p-7 sm:p-9">
-                  <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-blue-100 text-blue-600">
+                  <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-secondary text-primary">
                     <Target className="h-7 w-7" />
                   </div>
 
-                  <h3 className="mt-6 text-2xl font-bold text-slate-900">
+                  <h3 className="mt-6 text-2xl font-bold text-foreground">
                     Our Mission
                   </h3>
 
-                  <p className="mt-4 leading-8 text-slate-600">
+                  <p className="mt-4 leading-8 text-muted-foreground">
                     Our mission is to make technology shopping simple and
                     convenient by helping customers explore products, understand
                     their options, and make informed decisions.
@@ -210,17 +196,17 @@ const Aboutpage = () => {
                 </CardContent>
               </Card>
 
-              <Card className="rounded-2xl border-slate-200 shadow-sm transition-shadow hover:shadow-md">
+              <Card className="rounded-2xl border-border shadow-sm transition-shadow hover:shadow-md">
                 <CardContent className="p-7 sm:p-9">
-                  <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-indigo-100 text-indigo-600">
+                  <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-secondary text-primary">
                     <Eye className="h-7 w-7" />
                   </div>
 
-                  <h3 className="mt-6 text-2xl font-bold text-slate-900">
+                  <h3 className="mt-6 text-2xl font-bold text-foreground">
                     Our Vision
                   </h3>
 
-                  <p className="mt-4 leading-8 text-slate-600">
+                  <p className="mt-4 leading-8 text-muted-foreground">
                     Our vision is to become a trusted destination for
                     discovering technology products by creating an accessible,
                     customer-focused, and continuously improving shopping
@@ -234,15 +220,15 @@ const Aboutpage = () => {
         <section className="px-6 py-16 sm:px-10 lg:py-24">
           <div className="mx-auto max-w-7xl">
             <div className="mx-auto mb-12 max-w-2xl text-center">
-              <span className="text-sm font-semibold tracking-widest text-blue-600 uppercase">
+              <span className="text-sm font-semibold tracking-widest text-primary uppercase">
                 What We Believe
               </span>
 
-              <h2 className="mt-3 text-3xl font-bold text-slate-900 sm:text-4xl">
+              <h2 className="mt-3 text-3xl font-bold text-foreground sm:text-4xl">
                 Our Core Values
               </h2>
 
-              <p className="mt-4 leading-7 text-slate-600">
+              <p className="mt-4 leading-7 text-muted-foreground">
                 The principles that guide how we serve our customers and develop
                 our platform.
               </p>
@@ -255,18 +241,18 @@ const Aboutpage = () => {
                 return (
                   <Card
                     key={value.title}
-                    className="group rounded-2xl border-slate-200 transition-all duration-300 hover:-translate-y-1 hover:border-blue-200 hover:shadow-lg"
+                    className="group rounded-2xl border-border transition-all duration-300 hover:-translate-y-1 hover:border-primary/30 hover:shadow-lg"
                   >
                     <CardContent className="p-6">
-                      <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 text-blue-600 transition-colors group-hover:bg-blue-600 group-hover:text-white">
+                      <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-secondary text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
                         <Icon className="h-6 w-6" />
                       </div>
 
-                      <h3 className="mt-5 text-lg font-bold text-slate-900">
+                      <h3 className="mt-5 text-lg font-bold text-foreground">
                         {value.title}
                       </h3>
 
-                      <p className="mt-3 text-sm leading-7 text-slate-600">
+                      <p className="mt-3 text-sm leading-7 text-muted-foreground">
                         {value.description}
                       </p>
                     </CardContent>
@@ -276,18 +262,18 @@ const Aboutpage = () => {
             </div>
           </div>
         </section>
-        <section className="bg-slate-50 px-6 py-16 sm:px-10 lg:py-24">
+        <section className="bg-muted px-6 py-16 sm:px-10 lg:py-24">
           <div className="mx-auto max-w-7xl">
             <div className="mb-12 text-center">
-              <span className="text-sm font-semibold tracking-widest text-blue-600 uppercase">
+              <span className="text-sm font-semibold tracking-widest text-primary uppercase">
                 The Tech Haven Difference
               </span>
 
-              <h2 className="mt-3 text-3xl font-bold text-slate-900 sm:text-4xl">
+              <h2 className="mt-3 text-3xl font-bold text-foreground sm:text-4xl">
                 Why Choose Us?
               </h2>
 
-              <p className="mx-auto mt-4 max-w-2xl leading-7 text-slate-600">
+              <p className="mx-auto mt-4 max-w-2xl leading-7 text-muted-foreground">
                 We focus on the details that help make your technology shopping
                 experience more convenient.
               </p>
@@ -300,17 +286,17 @@ const Aboutpage = () => {
                 return (
                   <div
                     key={benefit.title}
-                    className="rounded-2xl border border-slate-200 bg-white p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
+                    className="rounded-2xl border border-border bg-card p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
                   >
-                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-secondary text-primary">
                       <Icon className="h-6 w-6" />
                     </div>
 
-                    <h3 className="mt-5 text-lg font-bold text-slate-900">
+                    <h3 className="mt-5 text-lg font-bold text-foreground">
                       {benefit.title}
                     </h3>
 
-                    <p className="mt-3 text-sm leading-7 text-slate-600">
+                    <p className="mt-3 text-sm leading-7 text-muted-foreground">
                       {benefit.description}
                     </p>
                   </div>
@@ -320,12 +306,12 @@ const Aboutpage = () => {
           </div>
         </section>
         <section className="px-6 py-16 sm:px-10 lg:py-20">
-          <div className="mx-auto max-w-7xl overflow-hidden rounded-3xl bg-blue-600 px-6 py-12 text-center text-white sm:px-12 sm:py-16">
+          <div className="mx-auto max-w-7xl overflow-hidden rounded-3xl bg-primary px-6 py-12 text-center text-primary-foreground sm:px-12 sm:py-16">
             <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
               Let's Find Your Next Favorite Tech
             </h2>
 
-            <p className="mx-auto mt-4 max-w-2xl leading-7 text-blue-100">
+            <p className="mx-auto mt-4 max-w-2xl leading-7 text-primary-foreground/80">
               Explore our product collection or contact our team if you need
               help finding the right technology for your needs.
             </p>
@@ -333,7 +319,7 @@ const Aboutpage = () => {
             <div className="mt-8 flex flex-wrap justify-center gap-4">
               <Button
                 size="lg"
-                className="bg-white text-blue-700 hover:bg-blue-50"
+                className="bg-background text-foreground hover:bg-accent"
               >
                 <Link to="/products">Browse Products</Link>
               </Button>
@@ -341,7 +327,7 @@ const Aboutpage = () => {
               <Button
                 size="lg"
                 variant="outline"
-                className="border-white/60 bg-transparent text-white hover:bg-white hover:text-blue-700"
+                className="border-primary-foreground/60 bg-transparent text-primary-foreground hover:bg-primary-foreground hover:text-primary"
               >
                 <Link to="/contact">Get in Touch</Link>
               </Button>
