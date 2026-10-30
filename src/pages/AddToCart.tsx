@@ -21,40 +21,14 @@ import { Textarea } from "@/components/ui/textarea"
 import { useCartStore } from "@/store/cart-store"
 import {
   ArrowLeft,
-  Check,
-  Copy,
   Minus,
   Plus,
   ShieldCheck,
   ShoppingBag,
-  Trash2,
-  Upload,
+  ShoppingCart,
+  Trash,
 } from "lucide-react"
-import { useState } from "react"
 import { Link } from "react-router-dom"
-
-const paymentMethods = {
-  kpay: {
-    name: "KPay",
-    username: "Mg Mg Hlaing",
-    number: "09 759 518 791",
-    description: "Instant transfer via KPay",
-  },
-  wavepay: {
-    name: "Wave Pay",
-    username: "Ma Ma Hlaing",
-    number: "09 671 218 203",
-    description: "Fast mobile wallet payment",
-  },
-  ayapay: {
-    name: "AYA Pay",
-    number: "09 456 123 789",
-    username: "Mg Mg Hla",
-    description: "Secure AYA Pay transfer",
-  },
-}
-
-type PaymentMethod = keyof typeof paymentMethods
 
 const AddToCart = () => {
   const cart = useCartStore((state) => state.cart)
@@ -62,17 +36,6 @@ const AddToCart = () => {
   const updateQuantity = useCartStore((state) => state.updateQuantity)
   const clearCart = useCartStore((state) => state.clearCart)
   const total = useCartStore((state) => state.getTotalPrice())
-  const [selectedPayment, setSelectedPayment] = useState<PaymentMethod>("kpay")
-  const [copied, setCopied] = useState(false)
-
-  const handleCopy = () => {
-    navigator.clipboard.writeText(
-      paymentMethods[selectedPayment].number.toString()
-    )
-    setCopied(true)
-
-    setTimeout(() => setCopied(false), 2000)
-  }
 
   if (cart.length === 0) {
     return (
@@ -109,7 +72,8 @@ const AddToCart = () => {
             Your cart
           </h1>
 
-          <Button type="button" onClick={clearCart}>
+          <Button type="button" onClick={clearCart} variant={"destructive"}>
+            <ShoppingCart />
             Clear cart
           </Button>
         </div>
@@ -119,8 +83,17 @@ const AddToCart = () => {
             {cart.map((item) => (
               <Card
                 key={item.id}
-                className="overflow-hidden border-border/80 bg-card shadow-sm"
+                className="relative overflow-hidden border-border/80 bg-card shadow-sm"
               >
+                <Button
+                  type="button"
+                  onClick={() => removeFromCart(item.id)}
+                  className={
+                    "absolute top-0 right-0 m-2 h-6 w-6 bg-destructive p-4 hover:bg-red-400"
+                  }
+                >
+                  <Trash width={5} height={5} />
+                </Button>
                 <CardContent className="flex flex-col gap-5 p-4 sm:p-5 md:flex-row">
                   <Link
                     to={`/products/${item.id}`}
@@ -189,15 +162,6 @@ const AddToCart = () => {
                           <Plus className="h-4 w-4" />
                         </button>
                       </div>
-
-                      <button
-                        type="button"
-                        onClick={() => removeFromCart(item.id)}
-                        className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-destructive"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                        Remove
-                      </button>
                     </div>
                   </div>
                 </CardContent>
@@ -223,7 +187,7 @@ const AddToCart = () => {
                     </span>
                   </div>
                   <div className="flex items-center justify-between text-muted-foreground">
-                    <span>Shipping</span>
+                    <span>Delivery</span>
                     <span className="font-medium text-foreground">Free</span>
                   </div>
                   <div className="flex items-center justify-between text-muted-foreground">
@@ -248,7 +212,7 @@ const AddToCart = () => {
                         </Button>
                       }
                     />
-                    <DialogContent className="my-4 max-h-screen max-w-2xl overflow-scroll rounded-2xl sm:max-w-2xl">
+                    <DialogContent className="my-4 max-h-screen max-w-2xl scrollbar-none overflow-y-auto rounded-2xl sm:max-w-2xl">
                       <div className="border-b border-border bg-muted/30 px-5 py-2">
                         <DialogHeader className="items-start gap-2">
                           <DialogTitle className="text-2xl font-bold">
@@ -301,11 +265,11 @@ const AddToCart = () => {
                           </div>
                         </div>
 
-                        <div className="space-y-3">
+                        {/* <div className="space-y-3">
                           <label className="text-sm font-medium text-foreground">
                             Payment method
                           </label>
-                          {/* <div className="grid gap-3 sm:grid-cols-3">
+                          <div className="grid gap-3 sm:grid-cols-3">
                             {(
                               Object.entries(paymentMethods) as [
                                 PaymentMethod,
@@ -337,7 +301,7 @@ const AddToCart = () => {
                                 </p>
                               </button>
                             ))}
-                          </div> */}
+                          </div>
                           <div className="grid gap-3 sm:grid-cols-3">
                             <button
                               type="button"
@@ -464,7 +428,7 @@ const AddToCart = () => {
                               className="hidden"
                             />
                           </label>
-                        </div>
+                        </div> */}
                       </div>
 
                       <DialogFooter className="border-t border-border bg-muted/30 px-5 py-4">
