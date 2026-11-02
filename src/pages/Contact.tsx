@@ -10,6 +10,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
+import { motion } from "motion/react"
 
 const Contactpage = () => {
   const contactDetails = [
@@ -41,9 +42,17 @@ const Contactpage = () => {
 
   return (
     <main className="min-h-screen bg-background px-4 pt-28 text-foreground sm:px-6 lg:px-10">
+      <div className="pointer-events-none absolute top-20 left-20 z-0 h-80 w-80 rounded-full bg-primary/30 blur-[120px] sm:top-50 sm:left-100 sm:h-100 sm:w-150" />
+
       <div className="mx-auto max-w-7xl">
-        {/* Page Heading */}
-        <div className="mb-12 text-center">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.9, delay: 0.2 }}
+          viewport={{ once: true, amount: 0.2 }}
+
+          className="mb-12 text-center"
+        >
           <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-border bg-secondary px-4 py-2 text-sm font-medium text-secondary-foreground">
             <MessageCircle className="h-4 w-4" />
             We'd Love to Hear From You
@@ -58,13 +67,19 @@ const Contactpage = () => {
             team at Tech Haven is here to help you find the right technology for
             your needs.
           </p>
-        </div>
+        </motion.div>
 
         {/* Contact Information and Form */}
         <div className="grid gap-8 lg:grid-cols-5">
           {/* Contact Information */}
           <section className="lg:col-span-2">
-            <div className="h-full rounded-2xl border border-border bg-card p-6 text-card-foreground shadow-sm sm:p-8">
+            <motion.div
+              initial={{ opacity: 0, x: -30 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.9, delay: 0.2 }}
+              viewport={{ once: true, amount: 0.2 }}
+              className="h-full rounded-2xl border border-border bg-card p-6 text-card-foreground shadow-sm sm:p-8"
+            >
               <h2 className="mb-3 text-2xl font-bold">Get in Touch</h2>
 
               <p className="mb-8 leading-7 text-muted-foreground">
@@ -104,11 +119,17 @@ const Contactpage = () => {
                   your Tech Haven experience better.
                 </p>
               </div>
-            </div>
+            </motion.div>
           </section>
 
           {/* Contact Form */}
-          <section className="lg:col-span-3">
+          <motion.section
+            initial={{ opacity: 0, x: 30 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.9, delay: 0.2 }}
+            viewport={{ once: true, amount: 0.2 }}
+            className="lg:col-span-3"
+          >
             <Card className="h-full rounded-2xl border-border bg-card shadow-sm">
               <CardHeader className="p-6 sm:p-8">
                 <CardTitle className="text-2xl">Send Us a Message</CardTitle>
@@ -196,19 +217,31 @@ const Contactpage = () => {
                 </form>
               </CardContent>
             </Card>
-          </section>
+          </motion.section>
         </div>
 
         {/* Additional Help */}
         <div className="mt-12 rounded-2xl border border-border bg-muted p-6 text-center sm:p-8">
-          <h2 className="mb-2 text-xl font-bold text-foreground">
+          <motion.h2
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.9, delay: 0.2 }}
+            viewport={{ once: true, amount: 0.2 }}
+            className="mb-2 text-xl font-bold text-foreground"
+          >
             Still Have Questions?
-          </h2>
+          </motion.h2>
 
-          <p className="text-muted-foreground">
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.9, delay: 0.2 }}
+            viewport={{ once: true, amount: 0.2 }}
+            className="text-muted-foreground"
+          >
             We're happy to help you find the right products and solutions for
             your needs.
-          </p>
+          </motion.p>
         </div>
       </div>
     </main>

@@ -13,6 +13,33 @@ import {
   Truck,
 } from "lucide-react"
 import { CardContent, Card } from "@/components/ui/card"
+import { motion } from "motion/react"
+import Typewriter from "@/components/TypeWriter"
+
+const sectionVariants = {
+  hidden: { opacity: 0, y: 40 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.6, ease: "easeOut" as const },
+  },
+}
+const containerVariants = {
+  hidden: {},
+  visible: {
+    transition: {
+      staggerChildren: 0.12,
+    },
+  },
+}
+const itemVariants = {
+  hidden: { opacity: 0, y: 30 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.5, ease: "easeOut" as const },
+  },
+}
 const Aboutpage = () => {
   const coreValues = [
     {
@@ -66,10 +93,20 @@ const Aboutpage = () => {
         "Discover modern electronics and technology products in one convenient place.",
     },
   ]
+
   return (
     <>
-      <main className="min-h-screen bg-background">
-        <section className="relative overflow-hidden bg-muted px-6 py-20 text-foreground sm:px-10 lg:py-28">
+      <main className="relative min-h-screen overflow-hidden bg-background">
+        <div className="pointer-events-none absolute top-40 left-0 z-0 h-80 w-80 rounded-full bg-primary/30 blur-[120px]" />
+        <div className="pointer-events-none absolute top-40 right-0 z-0 h-80 w-80 rounded-full bg-primary/30 blur-[120px]" />
+
+        <motion.section
+          variants={sectionVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: false, amount: 0.2 }}
+          className="relative overflow-hidden px-6 py-20 text-foreground sm:px-10 lg:pt-32 lg:pb-20"
+        >
           <div className="mx-auto max-w-7xl">
             <div className="max-w-4xl pl-16">
               <span className="inline-flex rounded-full border border-border bg-secondary px-4 py-2 text-sm font-medium text-secondary-foreground">
@@ -89,12 +126,26 @@ const Aboutpage = () => {
               </p>
             </div>
           </div>
-        </section>
+        </motion.section>
         <section className="px-6 py-16 sm:px-10 lg:py-10">
           <div className="mx-auto grid max-w-7xl items-center gap-12 lg:grid-cols-2 lg:gap-20">
-            <div className="relative">
+            <motion.div
+              initial={{ opacity: 0, x: -50 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: false, amount: 0.1 }}
+              transition={{ duration: 0.7 }}
+              className="relative"
+            >
               <div className="flex min-h-80 items-center justify-center overflow-hidden rounded-3xl bg-linear-to-br from-muted via-background to-secondary p-8 sm:min-h-105">
-                <div className="max-w-sm text-center">
+                <motion.div
+                  animate={{ y: [0, -12, 0] }}
+                  transition={{
+                    duration: 4,
+                    repeat: Infinity,
+                    ease: "easeInOut",
+                  }}
+                  className="max-w-sm text-center"
+                >
                   <div className="mx-auto flex h-24 w-24 items-center justify-center rounded-3xl bg-primary text-primary-foreground shadow-xl">
                     <Zap className="h-12 w-12" />
                   </div>
@@ -106,7 +157,7 @@ const Aboutpage = () => {
                   <p className="mt-3 leading-7 text-muted-foreground">
                     Discover technology. Find your possibilities.
                   </p>
-                </div>
+                </motion.div>
               </div>
 
               <div className="absolute right-4 -bottom-6 rounded-2xl border border-border bg-card p-4 shadow-lg sm:right-8 sm:p-5">
@@ -118,9 +169,15 @@ const Aboutpage = () => {
                   Quality. Trust. Innovation.
                 </p>
               </div>
-            </div>
+            </motion.div>
 
-            <div className="pt-4 lg:pt-0">
+            <motion.div
+              initial={{ opacity: 0, x: 50 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: false, amount: 0.1 }}
+              transition={{ duration: 0.7 }}
+              className="pt-4 lg:pt-0"
+            >
               <span className="text-sm font-semibold tracking-widest text-primary uppercase">
                 Who We Are
               </span>
@@ -157,18 +214,24 @@ const Aboutpage = () => {
                   </div>
                 ))}
               </div>
-            </div>
+            </motion.div>
           </div>
         </section>
         <section className="bg-muted px-6 py-16 sm:px-10 lg:py-20">
-          <div className="mx-auto max-w-7xl">
+          <motion.div
+            variants={sectionVariants}
+            initial="hidden"
+            whileInView={"visible"}
+            viewport={{ once: false, amount: 0.2 }}
+            className="mx-auto max-w-7xl"
+          >
             <div className="mb-12 text-center">
               <span className="text-sm font-semibold tracking-widest text-primary uppercase">
                 Our Purpose
               </span>
 
               <h2 className="mt-3 text-3xl font-bold text-foreground sm:text-4xl">
-                Our Mission & Vision
+                <Typewriter text="Our Mission & Vision" />
               </h2>
 
               <p className="mx-auto mt-4 max-w-2xl leading-7 text-muted-foreground">
@@ -177,49 +240,65 @@ const Aboutpage = () => {
               </p>
             </div>
 
-            <div className="grid gap-6 md:grid-cols-2">
-              <Card className="rounded-2xl border-border shadow-sm transition-shadow hover:shadow-md">
-                <CardContent className="p-7 sm:p-9">
-                  <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-secondary text-primary">
-                    <Target className="h-7 w-7" />
-                  </div>
+            <motion.div
+              variants={containerVariants}
+              initial="hidden"
+              whileInView={"visible"}
+              viewport={{ once: false, amount: 0.1 }}
+              className="grid gap-6 md:grid-cols-2"
+            >
+              <motion.div variants={itemVariants} whileHover={{ x: -20 }}>
+                <Card className="rounded-2xl border-border shadow-sm transition-shadow hover:shadow-md">
+                  <CardContent className="p-7 sm:p-9">
+                    <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-secondary text-primary">
+                      <Target className="h-7 w-7" />
+                    </div>
 
-                  <h3 className="mt-6 text-2xl font-bold text-foreground">
-                    Our Mission
-                  </h3>
+                    <h3 className="mt-6 text-2xl font-bold text-foreground">
+                      Our Mission
+                    </h3>
 
-                  <p className="mt-4 leading-8 text-muted-foreground">
-                    Our mission is to make technology shopping simple and
-                    convenient by helping customers explore products, understand
-                    their options, and make informed decisions.
-                  </p>
-                </CardContent>
-              </Card>
+                    <p className="mt-4 leading-8 text-muted-foreground">
+                      Our mission is to make technology shopping simple and
+                      convenient by helping customers explore products,
+                      understand their options, and make informed decisions.
+                    </p>
+                  </CardContent>
+                </Card>
+              </motion.div>
 
-              <Card className="rounded-2xl border-border shadow-sm transition-shadow hover:shadow-md">
-                <CardContent className="p-7 sm:p-9">
-                  <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-secondary text-primary">
-                    <Eye className="h-7 w-7" />
-                  </div>
+              <motion.div variants={itemVariants} whileHover={{ x: 20 }}>
+                <Card className="rounded-2xl border-border shadow-sm transition-shadow hover:shadow-md">
+                  <CardContent className="p-7 sm:p-9">
+                    <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-secondary text-primary">
+                      <Eye className="h-7 w-7" />
+                    </div>
 
-                  <h3 className="mt-6 text-2xl font-bold text-foreground">
-                    Our Vision
-                  </h3>
+                    <h3 className="mt-6 text-2xl font-bold text-foreground">
+                      Our Vision
+                    </h3>
 
-                  <p className="mt-4 leading-8 text-muted-foreground">
-                    Our vision is to become a trusted destination for
-                    discovering technology products by creating an accessible,
-                    customer-focused, and continuously improving shopping
-                    experience.
-                  </p>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
+                    <p className="mt-4 leading-8 text-muted-foreground">
+                      Our vision is to become a trusted destination for
+                      discovering technology products by creating an accessible,
+                      customer-focused, and continuously improving shopping
+                      experience.
+                    </p>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            </motion.div>
+          </motion.div>
         </section>
         <section className="px-6 py-16 sm:px-10 lg:py-24">
           <div className="mx-auto max-w-7xl">
-            <div className="mx-auto mb-12 max-w-2xl text-center">
+            <motion.div
+              variants={sectionVariants}
+              initial="hidden"
+              whileInView={"visible"}
+              viewport={{ once: false, amount: 0.1 }}
+              className="mx-auto mb-12 max-w-2xl text-center"
+            >
               <span className="text-sm font-semibold tracking-widest text-primary uppercase">
                 What We Believe
               </span>
@@ -232,9 +311,15 @@ const Aboutpage = () => {
                 The principles that guide how we serve our customers and develop
                 our platform.
               </p>
-            </div>
+            </motion.div>
 
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            <motion.div
+              variants={sectionVariants}
+              initial="hidden"
+              whileInView={"visible"}
+              viewport={{ once: false, amount: 0.1 }}
+              className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4"
+            >
               {coreValues.map((value) => {
                 const Icon = value.icon
 
@@ -259,11 +344,17 @@ const Aboutpage = () => {
                   </Card>
                 )
               })}
-            </div>
+            </motion.div>
           </div>
         </section>
         <section className="bg-muted px-6 py-16 sm:px-10 lg:py-24">
-          <div className="mx-auto max-w-7xl">
+          <motion.div
+            variants={containerVariants}
+            initial="hidden"
+            whileInView={"visible"}
+            viewport={{ once: false, amount: 0.1 }}
+            className="mx-auto max-w-7xl"
+          >
             <div className="mb-12 text-center">
               <span className="text-sm font-semibold tracking-widest text-primary uppercase">
                 The Tech Haven Difference
@@ -279,7 +370,13 @@ const Aboutpage = () => {
               </p>
             </div>
 
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            <motion.div
+              variants={sectionVariants}
+              initial="hidden"
+              whileInView={"visible"}
+              viewport={{ once: false, amount: 0.1 }}
+              className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4"
+            >
               {benefits.map((benefit) => {
                 const Icon = benefit.icon
 
@@ -302,8 +399,8 @@ const Aboutpage = () => {
                   </div>
                 )
               })}
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
         </section>
         <section className="px-6 py-16 sm:px-10 lg:py-20">
           <div className="mx-auto max-w-7xl overflow-hidden rounded-3xl bg-primary px-6 py-12 text-center text-primary-foreground sm:px-12 sm:py-16">
