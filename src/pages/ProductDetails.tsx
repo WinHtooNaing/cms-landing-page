@@ -6,6 +6,8 @@ import { ShoppingCart, Star } from "lucide-react"
 import { cn } from "../lib/utils"
 import RelatedProduct from "@/components/RelatedProduct"
 import { useCartStore } from "@/store/cart-store"
+import { motion } from "motion/react"
+import Typewriter from "@/components/TypeWriter"
 const ProductDetails = () => {
   const { id } = useParams()
   const addToCart = useCartStore((set) => set.addToCart)
@@ -28,18 +30,29 @@ const ProductDetails = () => {
   }
   return (
     <div className="container mx-auto px-4 pt-25">
+      <div className="pointer-events-none absolute top-20 left-20 z-0 h-80 w-80 rounded-full bg-primary/30 blur-[120px] sm:top-50 sm:left-100 sm:h-100 sm:w-150" />
+      <div className="pointer-events-none absolute top-20 z-0 h-80 w-80 rounded-full bg-primary/30 blur-[120px]" />
+
       <Card className="overflow-hidden">
         <CardContent className="grid grid-cols-1 gap-8 p-6 md:grid-cols-[1fr_2fr] md:p-10">
           <div className="flex h-60 w-full items-center justify-center overflow-hidden rounded-md bg-white">
             <img
               src={product.image}
               alt={product.name}
-              className="h-full w-full object-contain transition-transform duration-500 ease-out hover:scale-105"
+              className="h-full w-full object-contain transition-transform duration-500 ease-out"
             />
           </div>
 
-          <div className="flex flex-col justify-center">
-            <h1 className="text-3xl font-bold md:text-4xl">{product.name}</h1>
+          <motion.div
+            initial={{ opacity: 0, x: 100 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.7, delay: 0.2 }}
+            viewport={{ once: true, amount: 0.2 }}
+            className="flex flex-col justify-center"
+          >
+            <h1 className="text-3xl font-bold md:text-4xl">
+              <Typewriter text={product.name} />
+            </h1>
             <div className="mt-4 flex items-center gap-2">
               <div className="flex items-center">
                 {[...Array(5)].map((_, i) => (
@@ -89,7 +102,7 @@ const ProductDetails = () => {
                 <Link to="/products">Continue Shopping</Link>
               </Button>
             </div>
-          </div>
+          </motion.div>
         </CardContent>
       </Card>
       <RelatedProduct />
