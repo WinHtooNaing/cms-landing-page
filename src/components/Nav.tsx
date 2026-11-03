@@ -5,9 +5,21 @@ import { Menu, ShoppingCartPlus, X } from "lucide-react"
 import { useState } from "react"
 import { Link, NavLink } from "react-router-dom"
 import logo from "../assets/logo.png"
+import { useAuthStore } from "@/store/user-store"
+import { Avatar, AvatarFallback } from "./ui/avatar"
 
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 const Navbar = () => {
   const cart = useCartStore((state) => state.cart)
+  const user = useAuthStore((state) => state.user)
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
 
@@ -49,33 +61,75 @@ const Navbar = () => {
 
         {/* Cart + Mobile Menu */}
         <div className="flex items-center gap-2">
-          <Link
-            to="/cart"
-            aria-label="Shopping cart"
-            className="relative rounded-full border border-white/20 bg-white/10 p-3 transition-all hover:bg-white/20"
-          >
-            <ShoppingCartPlus className="h-5 w-5" />
+          {user?.role === "CUSTOMER" && (
+            <Link
+              to="/cart"
+              aria-label="Shopping cart"
+              className="relative rounded-full border border-white/20 bg-white/10 p-3 transition-all hover:bg-white/20"
+            >
+              <ShoppingCartPlus className="h-5 w-5" />
 
-            {/* <span className="absolute -top-1 -right-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1 text-xs font-bold text-primary-foreground">
+              {/* <span className="absolute -top-1 -right-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1 text-xs font-bold text-primary-foreground">
               {cart.length}
             </span> */}
-            <AnimatePresence mode="popLayout">
-              <motion.span
-                key={cart.length}
-                initial={{ scale: 0, opacity: 0, y: -8 }}
-                animate={{ scale: 1, opacity: 1, y: 0 }}
-                exit={{ scale: 0, opacity: 0, y: 8 }}
-                transition={{
-                  type: "spring",
-                  stiffness: 500,
-                  damping: 20,
-                }}
-                className="absolute -top-1 -right-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1 text-xs font-bold text-primary-foreground"
+              <AnimatePresence mode="popLayout">
+                <motion.span
+                  key={cart.length}
+                  initial={{ scale: 0, opacity: 0, y: -8 }}
+                  animate={{ scale: 1, opacity: 1, y: 0 }}
+                  exit={{ scale: 0, opacity: 0, y: 8 }}
+                  transition={{
+                    type: "spring",
+                    stiffness: 500,
+                    damping: 20,
+                  }}
+                  className="absolute -top-1 -right-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1 text-xs font-bold text-primary-foreground"
+                >
+                  {cart.length}
+                </motion.span>
+              </AnimatePresence>
+            </Link>
+          )}
+          <div className="max-sm:hidden">
+            {user ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger
+                  render={
+                    <Avatar>
+                      {/* <AvatarImage src="https://github.com/shadcn.png" /> */}
+                      <AvatarFallback>{user.name.slice(0, 1)}</AvatarFallback>
+                    </Avatar>
+                  }
+                >
+                  Open
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  <DropdownMenuGroup>
+                    <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                    <DropdownMenuItem>
+                      <Link to="/profile">Profile</Link>
+                    </DropdownMenuItem>
+                  </DropdownMenuGroup>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuGroup>
+                    <DropdownMenuItem
+                      className={"text-red-500 hover:bg-red-500"}
+                      onClick={() => useAuthStore.getState().setUser(null)}
+                    >
+                      Logout
+                    </DropdownMenuItem>
+                  </DropdownMenuGroup>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <Link
+                to="/login"
+                className="rounded-full border border-primary/20 bg-primary/10 p-3 transition-all hover:bg-primary/20"
               >
-                {cart.length}
-              </motion.span>
-            </AnimatePresence>
-          </Link>
+                Login
+              </Link>
+            )}
+          </div>
 
           {/* Mobile Menu Button */}
           <button
