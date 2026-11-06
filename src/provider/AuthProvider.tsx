@@ -1,41 +1,41 @@
 import { checkCurrentUser } from "@/api/auth"
 import { useAuthStore } from "@/store/user-store"
 import { useEffect } from "react"
-import { useNavigate } from "react-router-dom"
 
 const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const navigate = useNavigate()
   const setUser = useAuthStore((state) => state.setUser)
-  const getCurrentUser = async () => {
-    try {
-      const response = await checkCurrentUser()
-      if (response.success) {
-        if (response.data.role !== "CUSTOMER") {
-          throw new Error("Something went wrong")
-        } else {
-          const { id, name, email, phone, role } = response.data
-          setUser({
-            id,
-            name,
-            email,
-            phone,
-            role,
-          })
-        }
-      } else {
-        localStorage.removeItem("accessToken")
-        localStorage.removeItem("refreshToken")
-        setUser(null)
-        navigate("/")
-        throw new Error(response.message)
-      }
-    } catch (err) {
-      console.log(err)
-    }
-  }
+  const setLoading = useAuthStore((state) => state.setLoading)
+
   useEffect(() => {
-    getCurrentUser()
-  }, [])
+    const getCurrentUser = async () => {
+      if (!localStorage.getItem("accessToken")) {
+        setUser(null)
+        setLoading(false)
+        return
+      }
+
+      try {
+        const response = await checkCurrentUser()
+        if (!response.success || response.data.role !== "CUSTOMER") {
+          localStorage.removeItem("accessToken")
+          localStorage.removeItem("refreshToken")
+          setUser(null)
+          return
+        }
+
+        const { id, name, email, phone, role } = response.data
+        setUser({ id, name, email, phone, role })
+      } catch (error) {
+        console.error("Failed to restore the current user session", error)
+        setUser(null)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    void getCurrentUser()
+  }, [setLoading, setUser])
+
   return <>{children}</>
 }
 export default AuthProvider

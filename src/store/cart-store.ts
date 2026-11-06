@@ -3,15 +3,29 @@ import { create } from "zustand"
 export interface Product {
   id: number
   name: string
-  brand: string
   price: number
-  originalPrice: number
   image: string
-  category: string
   description: string
-  stock: number
-  rating: number
+  brand?: string
+  originalPrice?: number
+  category?: string
+  stock?: number
+  rating?: number
 }
+
+export const toCartProduct = (product: {
+  id: number
+  name: string
+  price: number
+  imageUrl: string
+  description: string
+}): Product => ({
+  id: product.id,
+  name: product.name,
+  price: Number(product.price),
+  image: product.imageUrl,
+  description: product.description,
+})
 
 export interface CartItem extends Product {
   quantity: number

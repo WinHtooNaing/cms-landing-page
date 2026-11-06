@@ -2,11 +2,12 @@ import { Card, CardContent } from "@/components/ui/card"
 import { ShoppingCartPlus, Star } from "lucide-react"
 import { cn } from "cn"
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip"
-
+import { toast } from "sonner"
 import { Link } from "react-router-dom"
 import { motion } from "motion/react"
 import type { newCollectionProps } from "@/api/products"
-import { useEffect } from "react"
+
+import { createAddToCart, type createAddToCartProps } from "@/api/addToCart"
 
 type ProductListsProps = {
   products: newCollectionProps[]
@@ -36,10 +37,19 @@ const cardVariants = {
 }
 
 const ProductLists = ({ products }: ProductListsProps) => {
-  // const addToCart = useCartStore((set) => set.addToCart)
-  useEffect(() => {
-    console.log("products", products)
-  })
+  const addToCart = async (payload: createAddToCartProps) => {
+    try {
+      const response = await createAddToCart(payload)
+      if (response.success) {
+        toast.success("product added to cart", { position: "bottom-right" })
+      } else {
+        throw new Error()
+      }
+    } catch (err) {
+      toast.error("something went wrong")
+    }
+  }
+
   return (
     <div className="mt-10 scroll-mt-24">
       {products && products.length === 0 ? (
@@ -134,7 +144,13 @@ const ProductLists = ({ products }: ProductListsProps) => {
                             render={
                               <button
                                 type="button"
-                                // onClick={() => addToCart(product)}
+                                onClick={() =>
+                                  addToCart({
+                                    productId: product.id,
+                                    quantity: 1,
+                                  })
+                                }
+                                aria-label={`Add ${product.name} to cart`}
                                 className="flex h-10 w-11 items-center justify-center rounded-lg border border-primary/30 bg-white/50 text-primary backdrop-blur-md transition-all duration-300 hover:border-primary hover:bg-primary hover:text-white"
                               >
                                 <ShoppingCartPlus className="h-5 w-5" />

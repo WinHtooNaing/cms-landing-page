@@ -9,9 +9,23 @@ import Typewriter from "@/components/TypeWriter"
 import { getProductDetail } from "@/api/products"
 import { useQuery } from "@tanstack/react-query"
 import ProductDetailsSkeleton from "@/components/skeleton/ProductDetailsSkeleton"
+
+import { createAddToCart, type createAddToCartProps } from "@/api/addToCart"
+import { toast } from "sonner"
 const ProductDetails = () => {
   const { id } = useParams()
-  // const addToCart = useCartStore((set) => set.addToCart)
+  const addToCart = async (payload: createAddToCartProps) => {
+    try {
+      const response = await createAddToCart(payload)
+      if (response.success) {
+        toast.success("product added to cart", { position: "bottom-right" })
+      } else {
+        throw new Error()
+      }
+    } catch (err) {
+      toast.error("something went wrong")
+    }
+  }
   const getDetail = async () => {
     const response = await getProductDetail(Number(id))
     return response.data
@@ -103,7 +117,16 @@ const ProductDetails = () => {
             </div>
 
             <div className="mt-8 flex flex-wrap gap-4">
-              <Button className="h-12">
+              <Button
+                type="button"
+                className="h-12"
+                onClick={() =>
+                  addToCart({
+                    productId: data.id,
+                    quantity: 1,
+                  })
+                }
+              >
                 <ShoppingCart className="mr-2 h-5 w-5" />
                 Add to Cart
               </Button>

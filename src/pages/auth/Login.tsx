@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { motion } from "motion/react"
 import { Lock, Mail } from "lucide-react"
-import { Link, useNavigate } from "react-router-dom"
+import { Link, useLocation, useNavigate } from "react-router-dom"
 import { Controller, useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
@@ -20,6 +20,14 @@ import { Spinner } from "@/components/ui/spinner"
 import { useAuthStore } from "@/store/user-store"
 const Login = () => {
   const navigate = useNavigate()
+  const location = useLocation()
+  const requestedDestination = (location.state as { from?: string } | null)
+    ?.from
+  const destination =
+    requestedDestination?.startsWith("/") &&
+    !requestedDestination.startsWith("//")
+      ? requestedDestination
+      : "/"
   const user = useAuthStore((state) => state.user)
   const [isLoading, setIsLoading] = useState(false)
   const setUser = useAuthStore((state) => state.setUser)
@@ -53,7 +61,7 @@ const Login = () => {
           })
           setIsLoading(false)
           toast.success("Account created successfully!")
-          navigate("/")
+          navigate(destination, { replace: true })
         }
       } else {
         throw new Error(response.message || "Login failed")
@@ -66,9 +74,9 @@ const Login = () => {
 
   useEffect(() => {
     if (user) {
-      navigate("/")
+      navigate(destination, { replace: true })
     }
-  }, [user, navigate])
+  }, [user, navigate, destination])
 
   return (
     <section className="relative flex min-h-screen items-center justify-center overflow-hidden px-4 py-28">

@@ -1,3 +1,10 @@
+import {
+  deleteAddToCart,
+  deleteAddToCartById,
+  getAddToCartItems,
+  updateQuantity,
+  type createAddToCartProps,
+} from "@/api/addToCart"
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -16,9 +23,10 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
+
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import { useCartStore } from "@/store/cart-store"
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import {
   ArrowLeft,
   Minus,
@@ -29,13 +37,91 @@ import {
   Trash,
 } from "lucide-react"
 import { AnimatePresence, motion } from "motion/react"
+import { useState } from "react"
+
 import { Link } from "react-router-dom"
+import { toast } from "sonner"
 const AddToCart = () => {
-  const cart = useCartStore((state) => state.cart)
-  const removeFromCart = useCartStore((state) => state.removeFromCart)
-  const updateQuantity = useCartStore((state) => state.updateQuantity)
-  const clearCart = useCartStore((state) => state.clearCart)
-  const total = useCartStore((state) => state.getTotalPrice())
+  const queryClient = useQueryClient()
+  const [subtotal, setSubtotal] = useState(0)
+
+  // get all data
+  const getData = async () => {
+    const response = await getAddToCartItems()
+    setSubtotal(response.data.subtotal)
+    return response.data.items
+  }
+
+  const { data, isPending } = useQuery({
+    queryKey: ["addToCart"],
+    queryFn: getData,
+  })
+  // clear all data
+  const clearCart = async () => {
+    try {
+      const response = await deleteAddToCart()
+      if (response.success) {
+        toast.success("clear all done")
+      } else {
+        throw new Error()
+      }
+    } catch (err) {
+      toast.error("something went wrong")
+    }
+  }
+  // clear by id
+  const clearCartById = async (id: number) => {
+    try {
+      const response = await deleteAddToCartById(id)
+      if (response.success) {
+        toast.success("clear  done")
+      } else {
+        throw new Error()
+      }
+    } catch (err) {
+      toast.error("something went wrong")
+    }
+  }
+  const updateQty = async (payload: createAddToCartProps) => {
+    try {
+      const response = await updateQuantity(payload)
+      console.log("response", response)
+      console.log("payload", payload.productId)
+      if (response.success) {
+        console.log("done")
+      } else {
+        throw new Error()
+      }
+    } catch (err) {
+      toast.error("something went wrong")
+    }
+  }
+  const mutationAll = useMutation({
+    mutationFn: clearCart,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["addToCart"],
+      })
+    },
+  })
+  const mutationById = useMutation({
+    mutationFn: (id: number) => clearCartById(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["addToCart"],
+      })
+    },
+  })
+  const mutationQty = useMutation({
+    mutationFn: (payload: createAddToCartProps) => updateQty(payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["addToCart"],
+      })
+    },
+  })
+
+  if (isPending) return <p>loading</p>
 
   return (
     <section className="relative mt-24 min-h-screen overflow-hidden px-4 pb-20 md:px-8">
@@ -48,7 +134,7 @@ const AddToCart = () => {
 
       <div className="mx-auto max-w-7xl">
         {/* Empty cart */}
-        {cart.length === 0 ? (
+        {data && data.length === 0 ? (
           <motion.div
             initial={{ opacity: 0, y: 30, scale: 0.96 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -104,16 +190,17 @@ const AddToCart = () => {
                   Your cart
                 </h1>
                 <p className="mt-2 text-sm text-muted-foreground">
-                  {cart.length} {cart.length === 1 ? "item" : "items"} in your
-                  cart
+                  {data && data.length}{" "}
+                  {data && data.length === 1 ? "item" : "items"} in your cart
                 </p>
               </div>
 
               <Button
                 type="button"
-                onClick={clearCart}
+                onClick={() => mutationAll.mutate()}
                 variant="destructive"
                 className="gap-2 rounded-full"
+                disabled={mutationAll.isPending}
               >
                 <ShoppingCart className="h-4 w-4" />
                 <span className="hidden sm:inline">Clear cart</span>
@@ -129,143 +216,165 @@ const AddToCart = () => {
                 className="space-y-5"
               >
                 <AnimatePresence mode="popLayout">
-                  {cart.map((item, index) => (
-                    <motion.div
-                      key={item.id}
-                      layout
-                      initial={{ opacity: 0, y: 25, scale: 0.96 }}
-                      animate={{ opacity: 1, y: 0, scale: 1 }}
-                      exit={{
-                        opacity: 0,
-                        x: 60,
-                        scale: 0.9,
-                        transition: { duration: 0.25 },
-                      }}
-                      transition={{
-                        duration: 0.45,
-                        delay: index * 0.06,
-                        layout: { duration: 0.3 },
-                      }}
-                    >
-                      <Card className="group relative overflow-hidden rounded-3xl border border-white/50 bg-white/30 shadow-lg shadow-black/5 backdrop-blur-2xl transition-all duration-300 hover:-translate-y-1 hover:border-primary/20 hover:shadow-xl dark:border-white/10 dark:bg-white/5">
-                        {/* Subtle card highlight */}
-                        <div className="pointer-events-none absolute inset-0 bg-linear-to-br from-white/20 via-transparent to-primary/5 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+                  {data &&
+                    data.map((item, index) => (
+                      <motion.div
+                        key={item.productId}
+                        layout
+                        initial={{ opacity: 0, y: 25, scale: 0.96 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{
+                          opacity: 0,
+                          x: 60,
+                          scale: 0.9,
+                          transition: { duration: 0.25 },
+                        }}
+                        transition={{
+                          duration: 0.45,
+                          delay: index * 0.06,
+                          layout: { duration: 0.3 },
+                        }}
+                      >
+                        <Card className="group relative overflow-hidden rounded-3xl border border-white/50 bg-white/30 shadow-lg shadow-black/5 backdrop-blur-2xl transition-all duration-300 hover:-translate-y-1 hover:border-primary/20 hover:shadow-xl dark:border-white/10 dark:bg-white/5">
+                          {/* Subtle card highlight */}
+                          <div className="pointer-events-none absolute inset-0 bg-linear-to-br from-white/20 via-transparent to-primary/5 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
 
-                        <Button
-                          type="button"
-                          onClick={() => removeFromCart(item.id)}
-                          variant="destructive"
-                          size="icon"
-                          aria-label={`Remove ${item.name} from cart`}
-                          className="absolute top-3 right-3 z-10 h-9 w-9 rounded-full shadow-lg transition-transform duration-300 hover:scale-110"
-                        >
-                          <Trash className="h-4 w-4" />
-                        </Button>
-
-                        <CardContent className="relative flex flex-col gap-5 p-4 sm:p-5 md:flex-row">
-                          {/* Product image */}
-                          <Link
-                            to={`/products/${item.id}`}
-                            className="block shrink-0 overflow-hidden rounded-2xl border border-white/30 bg-white/20 md:w-40 dark:border-white/10"
+                          <Button
+                            type="button"
+                            onClick={() => mutationById.mutate(item.productId)}
+                            disabled={mutationById.isPending}
+                            variant="destructive"
+                            size="icon"
+                            aria-label={`Remove ${item.name} from cart`}
+                            className="absolute top-3 right-3 z-10 h-9 w-9 rounded-full shadow-lg transition-transform duration-300 hover:scale-110"
                           >
-                            <motion.img
-                              whileHover={{ scale: 1.08 }}
-                              transition={{ duration: 0.4 }}
-                              src={item.image}
-                              alt={item.name}
-                              className="h-40 w-full object-cover md:h-36 md:w-40"
-                            />
-                          </Link>
+                            <Trash className="h-4 w-4" />
+                          </Button>
 
-                          {/* Product details */}
-                          <div className="flex w-full flex-col gap-4 md:flex-row md:items-center md:justify-between">
-                            <div className="min-w-0 flex-1">
-                              <span className="mb-2 inline-flex rounded-full border border-primary/10 bg-primary/10 px-3 py-1 text-[10px] font-semibold tracking-[0.15em] text-primary uppercase">
-                                {item.category}
-                              </span>
+                          <CardContent className="relative flex flex-col gap-5 p-4 sm:p-5 md:flex-row">
+                            {/* Product image */}
+                            <Link
+                              to={`/products/${item.productId}`}
+                              className="block shrink-0 overflow-hidden rounded-2xl border border-white/30 bg-white/20 md:w-40 dark:border-white/10"
+                            >
+                              <motion.img
+                                whileHover={{ scale: 1.08 }}
+                                transition={{ duration: 0.4 }}
+                                src={item.imageUrl}
+                                alt={item.name}
+                                className="h-40 w-full object-cover md:h-36 md:w-40"
+                              />
+                            </Link>
 
-                              <Link
-                                to={`/products/${item.id}`}
-                                className="block"
-                              >
-                                <h2 className="line-clamp-2 text-lg font-semibold tracking-tight transition-colors hover:text-primary sm:text-xl">
-                                  {item.name}
-                                </h2>
-                              </Link>
-
-                              <p className="mt-1 text-sm text-muted-foreground">
-                                {item.brand}
-                              </p>
-
-                              <div className="mt-4 flex items-center gap-3">
-                                <motion.span
-                                  key={item.price * item.quantity}
-                                  initial={{ scale: 1.15, opacity: 0.5 }}
-                                  animate={{ scale: 1, opacity: 1 }}
-                                  className="text-lg font-bold text-foreground"
-                                >
-                                  {(
-                                    item.price * item.quantity
-                                  ).toLocaleString()}{" "}
-                                  Ks
-                                </motion.span>
-
-                                {item.originalPrice > item.price && (
-                                  <span className="text-sm text-muted-foreground line-through">
-                                    {(
-                                      item.originalPrice * item.quantity
-                                    ).toLocaleString()}{" "}
-                                    Ks
+                            {/* Product details */}
+                            <div className="flex w-full flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                              <div className="min-w-0 flex-1">
+                                {item.slug && (
+                                  <span className="mb-2 inline-flex rounded-full border border-primary/10 bg-primary/10 px-3 py-1 text-[10px] font-semibold tracking-[0.15em] text-primary uppercase">
+                                    {item.slug}
                                   </span>
                                 )}
-                              </div>
-                            </div>
 
-                            {/* Quantity controls */}
-                            <div className="flex items-center justify-between gap-4 md:flex-col md:items-end">
-                              <div className="flex items-center gap-2 rounded-full border border-white/50 bg-white/30 p-1 shadow-inner backdrop-blur-xl dark:border-white/10 dark:bg-white/5">
-                                <motion.button
-                                  whileTap={{ scale: 0.85 }}
-                                  type="button"
-                                  onClick={() =>
-                                    updateQuantity(item.id, item.quantity - 1)
-                                  }
-                                  aria-label={`Decrease quantity for ${item.name}`}
-                                  className="flex h-9 w-9 items-center justify-center rounded-full transition-colors hover:bg-white/60 dark:hover:bg-white/10"
+                                <Link
+                                  to={`/products/${item.productId}`}
+                                  className="block"
                                 >
-                                  <Minus className="h-4 w-4" />
-                                </motion.button>
+                                  <h2 className="line-clamp-2 text-lg font-semibold tracking-tight transition-colors hover:text-primary sm:text-xl">
+                                    {item.name}
+                                  </h2>
+                                </Link>
 
-                                <AnimatePresence mode="popLayout">
+                                {item.slug && (
+                                  <p className="mt-1 text-sm text-muted-foreground">
+                                    {item.slug}
+                                  </p>
+                                )}
+
+                                <div className="mt-4 flex items-center gap-3">
                                   <motion.span
-                                    key={item.quantity}
-                                    initial={{ opacity: 0, y: -8, scale: 0.8 }}
-                                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                                    exit={{ opacity: 0, y: 8, scale: 0.8 }}
-                                    className="min-w-8 text-center text-sm font-semibold"
+                                    key={item.currentUnitPrice * item.quantity}
+                                    initial={{ scale: 1.15, opacity: 0.5 }}
+                                    animate={{ scale: 1, opacity: 1 }}
+                                    className="text-lg font-bold text-foreground"
                                   >
-                                    {item.quantity}
+                                    {(
+                                      item.currentUnitPrice * item.quantity
+                                    ).toLocaleString()}{" "}
+                                    Ks
                                   </motion.span>
-                                </AnimatePresence>
 
-                                <motion.button
-                                  whileTap={{ scale: 0.85 }}
-                                  type="button"
-                                  onClick={() =>
-                                    updateQuantity(item.id, item.quantity + 1)
-                                  }
-                                  aria-label={`Increase quantity for ${item.name}`}
-                                  className="flex h-9 w-9 items-center justify-center rounded-full transition-colors hover:bg-white/60 dark:hover:bg-white/10"
-                                >
-                                  <Plus className="h-4 w-4" />
-                                </motion.button>
+                                  {item.currentUnitPrice !== undefined &&
+                                    item.currentUnitPrice >
+                                      item.currentUnitPrice && (
+                                      <span className="text-sm text-muted-foreground line-through">
+                                        {(
+                                          item.currentUnitPrice * item.quantity
+                                        ).toLocaleString()}{" "}
+                                        Ks
+                                      </span>
+                                    )}
+                                </div>
+                              </div>
+
+                              {/* Quantity controls */}
+                              <div className="flex items-center justify-between gap-4 md:flex-col md:items-end">
+                                <div className="flex items-center gap-2 rounded-full border border-white/50 bg-white/30 p-1 shadow-inner backdrop-blur-xl dark:border-white/10 dark:bg-white/5">
+                                  <motion.button
+                                    whileTap={{ scale: 0.85 }}
+                                    type="button"
+                                    onClick={() =>
+                                      mutationQty.mutate({
+                                        productId: item.productId,
+                                        quantity: item.quantity - 1,
+                                      })
+                                    }
+                                    disabled={
+                                      mutationQty.isPending || item.quantity < 1
+                                    }
+                                    aria-label={`Decrease quantity for ${item.name}`}
+                                    className={`flex h-9 w-9 items-center justify-center rounded-full transition-colors hover:bg-white/60 dark:hover:bg-white/10 ${mutationQty.isPending || item.quantity < 1 ? "pointer-events-none cursor-not-allowed" : ""}`}
+                                  >
+                                    <Minus className={`h-4 w-4`} />
+                                  </motion.button>
+
+                                  <AnimatePresence mode="popLayout">
+                                    <motion.span
+                                      key={item.quantity}
+                                      initial={{
+                                        opacity: 0,
+                                        y: -8,
+                                        scale: 0.8,
+                                      }}
+                                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                                      exit={{ opacity: 0, y: 8, scale: 0.8 }}
+                                      className="min-w-8 text-center text-sm font-semibold"
+                                    >
+                                      {item.quantity}
+                                    </motion.span>
+                                  </AnimatePresence>
+
+                                  <motion.button
+                                    whileTap={{ scale: 0.85 }}
+                                    type="button"
+                                    onClick={() =>
+                                      mutationQty.mutate({
+                                        productId: item.productId,
+                                        quantity: item.quantity + 1,
+                                      })
+                                    }
+                                    disabled={mutationQty.isPending}
+                                    aria-label={`Increase quantity for ${item.name}`}
+                                    className="flex h-9 w-9 items-center justify-center rounded-full transition-colors hover:bg-white/60 dark:hover:bg-white/10"
+                                  >
+                                    <Plus className="h-4 w-4" />
+                                  </motion.button>
+                                </div>
                               </div>
                             </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </motion.div>
-                  ))}
+                          </CardContent>
+                        </Card>
+                      </motion.div>
+                    ))}
                 </AnimatePresence>
               </motion.div>
 
@@ -299,12 +408,12 @@ const AddToCart = () => {
                       <div className="flex items-center justify-between text-muted-foreground">
                         <span>Subtotal</span>
                         <motion.span
-                          key={total}
+                          key={1}
                           initial={{ opacity: 0, y: -5 }}
                           animate={{ opacity: 1, y: 0 }}
                           className="font-medium text-foreground"
                         >
-                          {total.toLocaleString()} Ks
+                          {subtotal.toLocaleString()} KsKs
                         </motion.span>
                       </div>
 
@@ -327,11 +436,11 @@ const AddToCart = () => {
                       <div className="flex items-center justify-between text-base font-semibold">
                         <span>Total</span>
                         <motion.span
-                          key={`total-${total}`}
+                          key={`total-${subtotal}`}
                           initial={{ scale: 1.08, opacity: 0.5 }}
                           animate={{ scale: 1, opacity: 1 }}
                         >
-                          {total.toLocaleString()} Ks
+                          {subtotal.toLocaleString()} Ks
                         </motion.span>
                       </div>
 

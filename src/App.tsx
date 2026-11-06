@@ -9,6 +9,7 @@ import AddToCart from "./pages/AddToCart"
 import Register from "./pages/auth/Register"
 import Login from "./pages/auth/Login"
 import AuthProvider from "./provider/AuthProvider"
+import RouteProtect from "./components/auth/RouteProtect"
 
 export function App() {
   const router = createBrowserRouter([
@@ -41,8 +42,13 @@ export function App() {
           element: <ProductDetails />,
         },
         {
-          path: "/cart",
-          element: <AddToCart />,
+          element: <RouteProtect />,
+          children: [
+            {
+              path: "cart",
+              element: <AddToCart />,
+            },
+          ],
         },
         {
           path: "/register",

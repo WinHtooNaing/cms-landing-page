@@ -4,10 +4,10 @@ import { Link, useParams } from "react-router-dom"
 import { ShoppingCartPlus, Star } from "lucide-react"
 import { cn } from "cn"
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip"
-import { useCartStore } from "@/store/cart-store"
+import { useAddToCart } from "@/hooks/useAddToCart"
 const RelatedProduct = () => {
   const { id } = useParams()
-  const addToCart = useCartStore((set) => set.addToCart)
+  const addToCart = useAddToCart()
   const product = products.find((item) => item.id === Number(id))
   if (!product) return null
 
@@ -68,15 +68,17 @@ const RelatedProduct = () => {
                   </small>
                 </div>
                 <div className="mt-2 flex w-full items-center gap-4">
-                  <div
+                  <button
+                    type="button"
                     className="rounded-sm border border-black p-2"
-                    onClick={() => addToCart(product)}
+                    aria-label={`Add ${item.name} to cart`}
+                    onClick={() => addToCart(item)}
                   >
                     <Tooltip>
                       <TooltipTrigger render={<ShoppingCartPlus />} />
                       <TooltipContent>Add to cart</TooltipContent>
                     </Tooltip>
-                  </div>
+                  </button>
                   <Link
                     to={`/products/${item.id}`}
                     className="inline-flex h-10 w-30 items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow transition-colors hover:bg-primary/90"
