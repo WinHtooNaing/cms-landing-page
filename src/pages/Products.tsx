@@ -10,7 +10,6 @@ import {
 } from "@/components/ui/select"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Label } from "@/components/ui/label"
-import { useState } from "react"
 import { motion } from "motion/react"
 import { getCategories } from "@/api/categories"
 import { useQuery } from "@tanstack/react-query"
@@ -27,6 +26,7 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination"
 import { cn } from "cn"
+import { useSearchParams } from "react-router-dom"
 const sidebarVariants = {
   hidden: { opacity: 0, x: -30 },
   visible: {
@@ -50,29 +50,49 @@ const itemVariants = {
 }
 
 const Productspage = () => {
-  const [page, setPage] = useState(1)
-  const [limit, setLimit] = useState(4)
-  const [sortOrder, setSortOrder] = useState("desc")
-  // const [categoryId, setCategoryId] = useState(null)
-  const getProducts = async () => {
-    const response = await getAllProducts(page, limit, sortOrder)
-    return response.data
+  const [searchParams, setSearchParams] = useSearchParams()
+  const requestedPage = Number(searchParams.get("page"))
+  const page =
+    Number.isInteger(requestedPage) && requestedPage > 0 ? requestedPage : 1
+  const requestedLimit = Number(searchParams.get("limit"))
+  const limit = [6, 12, 18, 24].includes(requestedLimit) ? requestedLimit : 6
+  const sortOrder = searchParams.get("sortOrder") === "asc" ? "asc" : "desc"
+  const requestedCategoryId = Number(searchParams.get("categoryId"))
+  const categoryId =
+    Number.isInteger(requestedCategoryId) && requestedCategoryId > 0
+      ? requestedCategoryId
+      : undefined
+
+  const updateSearchParams = (updates: Record<string, string | null>) => {
+    setSearchParams((currentParams) => {
+      const nextParams = new URLSearchParams(currentParams)
+      Object.entries(updates).forEach(([key, value]) => {
+        if (value === null) {
+          nextParams.delete(key)
+        } else {
+          nextParams.set(key, value)
+        }
+      })
+      return nextParams
+    })
   }
 
-  const getCategory = async () => {
-    const response = await getCategories()
-    return response.data
-  }
   const products = useQuery({
-    queryKey: ["products"],
-    queryFn: getProducts,
+    queryKey: ["products", page, limit, sortOrder, categoryId],
+    queryFn: async () => {
+      const response = await getAllProducts(page, limit, sortOrder, categoryId)
+      return response.data
+    },
   })
   const categories = useQuery({
     queryKey: ["categories"],
-    queryFn: getCategory,
+    queryFn: async () => {
+      const response = await getCategories()
+      return response.data
+    },
   })
 
-  if (products.isPending && categories.isPending) {
+  if (products.isPending) {
     return (
       <>
         <section className="mt-20 flex min-h-screen gap-6 px-[5%] py-10 max-md:flex-col">
@@ -84,8 +104,8 @@ const Productspage = () => {
             </div>
           </aside>
           <div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {Array.from({ length: 6 }).map(() => (
-              <ProductSkeleton />
+            {Array.from({ length: 6 }, (_, index) => (
+              <ProductSkeleton key={index} />
             ))}
           </div>
         </section>
@@ -126,15 +146,13 @@ const Productspage = () => {
               >
                 <Checkbox
                   id={categoryName.id.toString()}
-                  // checked={selectedCategory.includes(
-                  //   categoryName.id.toString()
-                  // )}
-                  // onCheckedChange={(checked) =>
-                  //   handleCategoryChange(
-                  //     categoryName.id.toString(),
-                  //     checked === true
-                  //   )
-                  // }
+                  checked={categoryId === categoryName.id}
+                  onCheckedChange={(checked) => {
+                    updateSearchParams({
+                      categoryId: checked ? String(categoryName.id) : null,
+                      page: "1",
+                    })
+                  }}
                   className="border-primary/40 data-[state=checked]:bg-primary"
                 />
 
@@ -160,7 +178,13 @@ const Productspage = () => {
               whileHover={{ x: 4 }}
               className="flex items-center gap-3"
             >
-              <Checkbox id="sort-oldest" />
+              <Checkbox
+                id="sort-oldest"
+                checked={sortOrder === "asc"}
+                onCheckedChange={() =>
+                  updateSearchParams({ sortOrder: "asc", page: "1" })
+                }
+              />
               <Label
                 htmlFor="sort-oldest"
                 className="cursor-pointer text-sm text-foreground/80"
@@ -173,7 +197,13 @@ const Productspage = () => {
               whileHover={{ x: 4 }}
               className="flex items-center gap-3"
             >
-              <Checkbox id="sort-latest" />
+              <Checkbox
+                id="sort-latest"
+                checked={sortOrder === "desc"}
+                onCheckedChange={() =>
+                  updateSearchParams({ sortOrder: "desc", page: "1" })
+                }
+              />
               <Label
                 htmlFor="sort-latest"
                 className="cursor-pointer text-sm text-foreground/80"
@@ -192,76 +222,152 @@ const Productspage = () => {
         transition={{ duration: 0.6, delay: 0.2 }}
         className="min-w-0 flex-1"
       >
-        <ProductLists products={products.data?.items ?? []} />
-        <motion.div
-          initial={{ opacity: 0, y: 15 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.3 }}
-          className="mt-8 flex justify-around"
-        >
-          <div className="flex w-full items-center">
-            <Label>showing 1-3 out of 3 </Label>
+        {products.isError ? (
+          <div role="alert" className="mt-10 text-center text-destructive">
+            Products could not be loaded. Please try again.
+            <button
+              type="button"
+              onClick={() => void products.refetch()}
+              className="ml-2 underline"
+            >
+              Retry
+            </button>
           </div>
+        ) : (
+          <>
+            <ProductLists products={products.data?.items ?? []} />
+            {products.data && (
+              <motion.div
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: 0.3 }}
+                className="mt-8 flex flex-wrap items-center justify-between gap-4"
+              >
+                <Label>
+                  {products.data.pagination.total === 0
+                    ? "Showing 0 of 0 products"
+                    : `Showing ${(page - 1) * limit + 1}-${(page - 1) * limit + products.data.items.length} of ${products.data.pagination.total} products`}
+                </Label>
 
-          <Pagination className="w-full">
-            <PaginationContent className="gap-2 p-2">
-              <PaginationItem>
-                <PaginationPrevious
-                  href="#"
-                  onClick={() => {
-                    setPage((prev) => prev - 1)
-                  }}
-                  className={cn(
-                    "cursor-pointer rounded-lg bg-primary/10 transition-colors hover:bg-primary/20"
-                  )}
-                />
-              </PaginationItem>
+                {products.data.pagination.totalPages >= 1 && (
+                  <Pagination className="w-auto">
+                    <PaginationContent className="gap-2 p-2">
+                      <PaginationItem>
+                        <PaginationPrevious
+                          href="#"
+                          aria-disabled={page <= 1}
+                          onClick={(event) => {
+                            event.preventDefault()
+                            updateSearchParams({
+                              page: String(Math.max(1, page - 1)),
+                            })
+                          }}
+                          className={cn(
+                            "rounded-lg bg-primary/10 transition-colors hover:bg-primary/20",
+                            page <= 1 && "pointer-events-none opacity-40"
+                          )}
+                        />
+                      </PaginationItem>
+                      {Array.from(
+                        {
+                          length: Math.min(
+                            5,
+                            products.data.pagination.totalPages
+                          ),
+                        },
+                        (_, index) => {
+                          const totalPages =
+                            products.data?.pagination.totalPages ?? 1
+                          const firstPage = Math.max(
+                            1,
+                            Math.min(page - 2, totalPages - 4)
+                          )
+                          const pageNumber = firstPage + index
+                          return (
+                            <PaginationItem key={pageNumber}>
+                              <PaginationLink
+                                href="#"
+                                isActive={pageNumber === page}
+                                onClick={(event) => {
+                                  event.preventDefault()
+                                  updateSearchParams({
+                                    page: String(pageNumber),
+                                  })
+                                }}
+                                className={cn(
+                                  "rounded-lg",
+                                  pageNumber === page &&
+                                    "border border-primary/20 bg-primary/10 font-bold text-primary"
+                                )}
+                              >
+                                {pageNumber}
+                              </PaginationLink>
+                            </PaginationItem>
+                          )
+                        }
+                      )}
+                      <PaginationItem>
+                        <PaginationNext
+                          href="#"
+                          aria-disabled={
+                            page >= products.data.pagination.totalPages
+                          }
+                          onClick={(event) => {
+                            event.preventDefault()
+                            updateSearchParams({
+                              page: String(
+                                Math.min(
+                                  products.data?.pagination.totalPages ?? page,
+                                  page + 1
+                                )
+                              ),
+                            })
+                          }}
+                          className={cn(
+                            "rounded-lg bg-primary/10 transition-colors hover:bg-primary/20",
+                            page >= products.data.pagination.totalPages &&
+                              "pointer-events-none opacity-40"
+                          )}
+                        />
+                      </PaginationItem>
+                    </PaginationContent>
+                  </Pagination>
+                )}
 
-              <PaginationItem>
-                <PaginationLink
-                  href="#"
-                  isActive
-                  className="cursor-default rounded-lg border border-primary/20 bg-primary/10 font-bold text-primary"
+                <Field
+                  orientation="horizontal"
+                  className="w-full justify-center sm:w-auto sm:justify-end"
                 >
-                  {page}
-                </PaginationLink>
-              </PaginationItem>
-
-              <PaginationItem>
-                <PaginationNext
-                  href="#"
-                  onClick={() => {
-                    setPage((prev) => prev + 1)
-                  }}
-                  className={cn(
-                    "cursor-pointer rounded-lg bg-primary/10 transition-colors hover:bg-primary/20"
-                  )}
-                />
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
-
-          <Field orientation="horizontal" className="flex w-full justify-end">
-            <div className="flex gap-2">
-              <FieldLabel htmlFor="select-rows-per-page">
-                Count per page
-              </FieldLabel>
-              <Select defaultValue="6">
-                <SelectTrigger className="w-20" id="select-rows-per-page">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent align="start">
-                  <SelectGroup>
-                    <SelectItem value="6">6</SelectItem>
-                    <SelectItem value="12">12</SelectItem>
-                    <SelectItem value="18">18</SelectItem>
-                    <SelectItem value="24">24</SelectItem>
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
-            </div>
-          </Field>
-        </motion.div>
+                  <div className="flex items-center gap-2">
+                    <FieldLabel htmlFor="select-rows-per-page">
+                      Count per page
+                    </FieldLabel>
+                    <Select
+                      value={String(limit)}
+                      onValueChange={(value) => {
+                        if (value) {
+                          updateSearchParams({ limit: value, page: "1" })
+                        }
+                      }}
+                    >
+                      <SelectTrigger className="w-20" id="select-rows-per-page">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent align="start">
+                        <SelectGroup>
+                          <SelectItem value="6">6</SelectItem>
+                          <SelectItem value="12">12</SelectItem>
+                          <SelectItem value="18">18</SelectItem>
+                          <SelectItem value="24">24</SelectItem>
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </Field>
+              </motion.div>
+            )}
+          </>
+        )}
       </motion.div>
     </section>
   )

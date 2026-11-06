@@ -40,11 +40,21 @@ export const getProductDetail = async (id: number) => {
 export const getAllProducts = async (
   page: number,
   limit: number,
-  sortOrder: string
-  // categoryId?: number | null
+  sortOrder: "asc" | "desc",
+  categoryId?: number
 ) => {
+  const params = new URLSearchParams({
+    page: String(page),
+    limit: String(limit),
+    sortOrder,
+  })
+
+  if (categoryId !== undefined) {
+    params.set("categoryId", String(categoryId))
+  }
+
   const response = await axiosInstance.get<productProps>(
-    `/products?page=${page}&limit=${limit}&sortOrder=${sortOrder}`
+    `/products?${params.toString()}`
   )
   return response.data
 }
