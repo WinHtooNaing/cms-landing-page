@@ -10,14 +10,18 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       const response = await checkCurrentUser()
       if (response.success) {
-        const { id, name, email, phone, role } = response.data
-        setUser({
-          id,
-          name,
-          email,
-          phone,
-          role,
-        })
+        if (response.data.role !== "CUSTOMER") {
+          throw new Error("Something went wrong")
+        } else {
+          const { id, name, email, phone, role } = response.data
+          setUser({
+            id,
+            name,
+            email,
+            phone,
+            role,
+          })
+        }
       } else {
         localStorage.removeItem("accessToken")
         localStorage.removeItem("refreshToken")

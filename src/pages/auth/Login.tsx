@@ -32,33 +32,34 @@ const Login = () => {
   })
   const onSubmit = async (data: z.infer<typeof loginSchema>) => {
     try {
-      // setIsLoading(true)
+      setIsLoading(true)
       const response = await login(data)
-      console.log("Login response:", response.data)
+      console.log("login response ", response.data)
       const { accessToken, refreshToken, user } = response.data
       const { id, name, email, phone, role } = user
       if (response.success) {
-        console.log("Login successful:", response.data)
-        localStorage.setItem("accessToken", accessToken)
-        localStorage.setItem("refreshToken", refreshToken)
+        if (role !== "CUSTOMER") {
+          throw new Error("Something went wrong")
+        } else {
+          localStorage.setItem("accessToken", accessToken)
+          localStorage.setItem("refreshToken", refreshToken)
 
-        setUser({
-          id,
-          name,
-          email,
-          phone,
-          role,
-        })
-
-        toast.success("Account created successfully!")
-        navigate("/")
+          setUser({
+            id,
+            name,
+            email,
+            phone,
+            role,
+          })
+          setIsLoading(false)
+          toast.success("Account created successfully!")
+          navigate("/")
+        }
       } else {
-        throw new Error(response.message || "Registration failed")
+        throw new Error(response.message || "Login failed")
       }
     } catch (err) {
-      toast.error(
-        (err as Error).message || "An error occurred during registration"
-      )
+      toast.error((err as Error).message || "An error occurred during Login")
       setIsLoading(false)
     }
   }

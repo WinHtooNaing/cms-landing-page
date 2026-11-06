@@ -114,7 +114,11 @@ const Navbar = () => {
                   <DropdownMenuGroup>
                     <DropdownMenuItem
                       className={"text-red-500 hover:bg-red-500"}
-                      onClick={() => useAuthStore.getState().setUser(null)}
+                      onClick={() => {
+                        useAuthStore.getState().setUser(null)
+                        localStorage.removeItem("accessToken")
+                        localStorage.removeItem("refreshToken")
+                      }}
                     >
                       Logout
                     </DropdownMenuItem>

@@ -33,13 +33,6 @@ export const login = async (payload: loginProps) => {
 }
 
 export const checkCurrentUser = async () => {
-  try {
-    const response = await axiosInstance.get("/auth/me", {
-      validateStatus: () => true,
-    })
-
-    return response.data
-  } catch (error: any) {
-    return error.message
-  }
+  const response = await axiosInstance.get("/auth/me")
+  return response.data
 }

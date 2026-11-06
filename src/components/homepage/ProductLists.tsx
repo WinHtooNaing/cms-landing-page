@@ -1,24 +1,16 @@
 import { Card, CardContent } from "@/components/ui/card"
 import { Link } from "react-router-dom"
-import { products } from "../../data"
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationNext,
-  PaginationPrevious,
-  PaginationLink,
-} from "../ui/pagination"
-import { useEffect, useRef, useState } from "react"
-import ProductSkeleton from "../skeleton/ProductSkeleton"
 import { motion } from "motion/react"
 import Typewriter from "../TypeWriter"
+import { newCollection } from "@/api/products"
+import { useQuery } from "@tanstack/react-query"
+import ProductSkeleton from "../skeleton/ProductSkeleton"
 
 // Parent animation
 const containerVariants = {
@@ -49,29 +41,25 @@ const cardVariants = {
 }
 
 const ProductLists = () => {
-  const [currentPage, setCurrentPage] = useState(1)
-  const itemsPerPage = 8
-  const totalPages = Math.ceil(products.length / itemsPerPage)
-  const startIndex = (currentPage - 1) * itemsPerPage
-  const endIndex = startIndex + itemsPerPage
-  const currentProducts = products.slice(startIndex, endIndex)
-
-  const scrollHead = useRef<HTMLDivElement>(null)
-
-  const scrollToHeader = () => {
-    scrollHead.current?.scrollIntoView({
-      behavior: "smooth",
-      block: "start",
-    })
+  const collectionData = async () => {
+    const response = await newCollection()
+    return response.data.items
   }
+  const { isError, data, isLoading } = useQuery({
+    queryKey: ["collection"],
+    queryFn: collectionData,
+  })
 
-  const [loading, setLoading] = useState(true)
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setLoading(false)
-    }, 3000)
-    return () => clearTimeout(timer)
-  }, [])
+  if (isError) return <p>Something went wrong</p>
+  if (isLoading) {
+    return (
+      <div className="mt-4 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+        {Array.from({ length: 8 }).map((_, index) => (
+          <ProductSkeleton key={index} />
+        ))}
+      </div>
+    )
+  }
 
   return (
     <div className="mt-20">
@@ -81,17 +69,10 @@ const ProductLists = () => {
         viewport={{ once: false, amount: 0.2 }}
         transition={{ duration: 0.6 }}
         className="mb-10 text-center text-2xl font-bold text-primary md:text-4xl"
-        ref={scrollHead}
       >
         <Typewriter text="New Collections" speed={200} />
       </motion.h1>
-      {loading ? (
-        <div className="mt-4 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
-          {currentProducts.map(() => (
-            <ProductSkeleton />
-          ))}
-        </div>
-      ) : (
+      {data && (
         <>
           <motion.div
             variants={containerVariants}
@@ -103,7 +84,7 @@ const ProductLists = () => {
             }}
             className="mt-4 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4"
           >
-            {currentProducts.map((product) => (
+            {data.map((product) => (
               <motion.div
                 variants={cardVariants}
                 whileHover={{
@@ -116,11 +97,11 @@ const ProductLists = () => {
                 }}
               >
                 <Card>
-                  <div className="">
+                  <div className="px-4">
                     <img
-                      src={product.image}
+                      src={product.imageUrl}
                       alt={product.name}
-                      className="h-50 w-full border object-cover transition-transform duration-500 ease-out hover:scale-105"
+                      className="h-50 w-full rounded-md border object-cover transition-transform duration-500 ease-out hover:scale-105"
                     />
                   </div>
                   <CardContent>
@@ -139,8 +120,14 @@ const ProductLists = () => {
                         </TooltipContent>
                       </Tooltip>
 
-                      <div className="flex items-center py-2">
-                        <p className="font-semibold">{product.price} ks</p>
+                      <div className="flex items-center gap-2 py-2">
+                        <p className="text-sm text-muted-foreground line-through">
+                          {Number(product.price) + Number(product.price) / 10}{" "}
+                          ks
+                        </p>
+                        <p className="font-bold text-primary">
+                          {product.price} ks
+                        </p>
                       </div>
                       <div>
                         <Link
@@ -156,49 +143,6 @@ const ProductLists = () => {
               </motion.div>
             ))}
           </motion.div>
-          {totalPages > 1 && (
-            <div className="mt-10 flex justify-center">
-              <Pagination>
-                <PaginationContent>
-                  <PaginationItem>
-                    <PaginationPrevious
-                      href="#"
-                      onClick={(e) => {
-                        e.preventDefault()
-                        setCurrentPage((prev) => Math.max(1, prev - 1))
-                        scrollToHeader()
-                      }}
-                      className={
-                        currentPage === 1
-                          ? "pointer-events-none opacity-50"
-                          : "cursor-pointer"
-                      }
-                    />
-                  </PaginationItem>
-                  <PaginationItem>
-                    <PaginationLink href="#" isActive>
-                      {currentPage}
-                    </PaginationLink>
-                  </PaginationItem>
-                  <PaginationItem>
-                    <PaginationNext
-                      href="#"
-                      onClick={(e) => {
-                        e.preventDefault()
-                        setCurrentPage((prev) => Math.min(totalPages, prev + 1))
-                        scrollToHeader()
-                      }}
-                      className={
-                        currentPage === totalPages
-                          ? "pointer-events-none opacity-50"
-                          : "cursor-pointer"
-                      }
-                    />
-                  </PaginationItem>
-                </PaginationContent>
-              </Pagination>
-            </div>
-          )}
         </>
       )}
     </div>
