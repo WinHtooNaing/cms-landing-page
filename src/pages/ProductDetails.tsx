@@ -27,7 +27,7 @@ const ProductDetails = () => {
     }
   }
   const getDetail = async () => {
-    const response = await getProductDetail(Number(id))
+    const response = await getProductDetail(id || "")
     return response.data
   }
 
@@ -122,7 +122,7 @@ const ProductDetails = () => {
                 className="h-12"
                 onClick={() =>
                   addToCart({
-                    productId: data.id,
+                    productId: data.id.toString(),
                     quantity: 1,
                   })
                 }

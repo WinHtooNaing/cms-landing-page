@@ -1,11 +1,11 @@
 import { axiosInstance } from "./axiosInstance"
 
 export type createAddToCartProps = {
-  productId: number
+  productId: string
   quantity: number
 }
 export type getAddToCartItemsProps = {
-  productId: number
+  productId: string
   name: string
   slug: string
   imageUrl: string

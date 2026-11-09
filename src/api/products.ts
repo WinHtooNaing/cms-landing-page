@@ -31,7 +31,7 @@ export const newCollection = async () => {
   return response.data
 }
 
-export const getProductDetail = async (id: number) => {
+export const getProductDetail = async (id: string) => {
   const response = await axiosInstance.get<productDetailProps>(
     `/products/${id}`
   )
@@ -41,7 +41,7 @@ export const getAllProducts = async (
   page: number,
   limit: number,
   sortOrder: "asc" | "desc",
-  categoryId?: number
+  categoryId?: string
 ) => {
   const params = new URLSearchParams({
     page: String(page),

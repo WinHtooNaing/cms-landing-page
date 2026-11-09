@@ -1,6 +1,5 @@
 import { AnimatePresence, motion } from "motion/react"
 
-import { useCartStore } from "@/store/cart-store"
 import { Menu, ShoppingCartPlus, X } from "lucide-react"
 import { useState } from "react"
 import { Link, NavLink } from "react-router-dom"
@@ -18,7 +17,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 const Navbar = () => {
-  const cart = useCartStore((state) => state.cart)
   const user = useAuthStore((state) => state.user)
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
@@ -74,7 +72,6 @@ const Navbar = () => {
             </span> */}
               <AnimatePresence mode="popLayout">
                 <motion.span
-                  key={cart.length}
                   initial={{ scale: 0, opacity: 0, y: -8 }}
                   animate={{ scale: 1, opacity: 1, y: 0 }}
                   exit={{ scale: 0, opacity: 0, y: 8 }}
@@ -85,7 +82,7 @@ const Navbar = () => {
                   }}
                   className="absolute -top-1 -right-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1 text-xs font-bold text-primary-foreground"
                 >
-                  {cart.length}
+                  0
                 </motion.span>
               </AnimatePresence>
             </Link>

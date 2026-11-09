@@ -57,11 +57,8 @@ const Productspage = () => {
   const requestedLimit = Number(searchParams.get("limit"))
   const limit = [6, 12, 18, 24].includes(requestedLimit) ? requestedLimit : 6
   const sortOrder = searchParams.get("sortOrder") === "asc" ? "asc" : "desc"
-  const requestedCategoryId = Number(searchParams.get("categoryId"))
-  const categoryId =
-    Number.isInteger(requestedCategoryId) && requestedCategoryId > 0
-      ? requestedCategoryId
-      : undefined
+  const requestedCategoryId = searchParams.get("categoryId")
+  const categoryId = requestedCategoryId ? requestedCategoryId : undefined
 
   const updateSearchParams = (updates: Record<string, string | null>) => {
     setSearchParams((currentParams) => {
@@ -146,7 +143,7 @@ const Productspage = () => {
               >
                 <Checkbox
                   id={categoryName.id.toString()}
-                  checked={categoryId === categoryName.id}
+                  checked={categoryId == categoryName.id.toString()}
                   onCheckedChange={(checked) => {
                     updateSearchParams({
                       categoryId: checked ? String(categoryName.id) : null,
