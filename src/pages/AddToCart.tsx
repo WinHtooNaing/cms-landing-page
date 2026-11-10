@@ -5,6 +5,12 @@ import {
   updateQuantity,
   type createAddToCartProps,
 } from "@/api/addToCart"
+import {
+  createOrder,
+  submitManualPayment,
+  type CreateOrderPayload,
+  type ManualPaymentPayload,
+} from "@/api/orders"
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -26,24 +32,100 @@ import {
 
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
+import { Field, FieldError, FieldLabel } from "@/components/ui/field"
+import { useForm } from "@tanstack/react-form"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { orderCheckoutSchema } from "@/types/orderSchema"
+import type * as z from "zod"
 import {
   ArrowLeft,
+  Check,
   Minus,
   Plus,
+  QrCode,
   ShieldCheck,
   ShoppingBag,
   ShoppingCart,
   Trash,
 } from "lucide-react"
 import { AnimatePresence, motion } from "motion/react"
-import { useState } from "react"
+import { useRef, useState } from "react"
 
 import { Link } from "react-router-dom"
 import { toast } from "sonner"
+import axios from "axios"
+
+type CheckoutPayload = {
+  order: CreateOrderPayload
+  manualPayment: ManualPaymentPayload
+  existingOrderId?: string
+}
+
+type CheckoutFormValues = z.input<typeof orderCheckoutSchema>
+
+class ManualPaymentSubmissionError extends Error {
+  readonly orderId: string
+
+  constructor(orderId: string, message: string, cause: unknown) {
+    super(message, { cause })
+    this.orderId = orderId
+  }
+}
+
+const getApiErrorMessage = (error: unknown) => {
+  if (axios.isAxiosError<{ message?: string }>(error)) {
+    return error.response?.data?.message ?? error.message
+  }
+  return error instanceof Error ? error.message : "Something went wrong."
+}
+
 const AddToCart = () => {
   const queryClient = useQueryClient()
   const [subtotal, setSubtotal] = useState(0)
+  const [isCheckoutOpen, setIsCheckoutOpen] = useState(false)
+  const [pendingManualOrderId, setPendingManualOrderId] = useState<
+    string | null
+  >(null)
+  const paymentImageInputRef = useRef<HTMLInputElement>(null)
+  const form = useForm({
+    defaultValues: {
+      shippingName: "",
+      shippingPhone: "",
+      shippingAddress: "",
+      note: "",
+      providerCode: "KBZ_PAY",
+      transactionReference: "",
+      image: null,
+    } as CheckoutFormValues,
+    validators: {
+      onSubmit: orderCheckoutSchema,
+    },
+    onSubmit: async ({ value }) => {
+      if (!(value.image instanceof File)) {
+        return
+      }
+
+      checkoutMutation.mutate({
+        order: {
+          paymentMethod: "MANUAL",
+          shippingName: value.shippingName.trim(),
+          shippingPhone: value.shippingPhone.trim(),
+          shippingAddress: value.shippingAddress.trim(),
+          note: value.note.trim(),
+          items: (data ?? []).map(({ productId, quantity }) => ({
+            productId,
+            quantity,
+          })),
+        },
+        manualPayment: {
+          providerCode: value.providerCode,
+          transactionReference: value.transactionReference.trim(),
+          image: value.image,
+        },
+        existingOrderId: pendingManualOrderId ?? undefined,
+      })
+    },
+  })
 
   // get all data
   const getData = async () => {
@@ -67,10 +149,11 @@ const AddToCart = () => {
       }
     } catch (err) {
       toast.error("something went wrong")
+      console.log(err)
     }
   }
   // clear by id
-  const clearCartById = async (id: number) => {
+  const clearCartById = async (id: string) => {
     try {
       const response = await deleteAddToCartById(id)
       if (response.success) {
@@ -80,6 +163,7 @@ const AddToCart = () => {
       }
     } catch (err) {
       toast.error("something went wrong")
+      console.log(err)
     }
   }
   const updateQty = async (payload: createAddToCartProps) => {
@@ -94,6 +178,7 @@ const AddToCart = () => {
       }
     } catch (err) {
       toast.error("something went wrong")
+      console.log(err)
     }
   }
   const mutationAll = useMutation({
@@ -105,7 +190,7 @@ const AddToCart = () => {
     },
   })
   const mutationById = useMutation({
-    mutationFn: (id: number) => clearCartById(id),
+    mutationFn: (id: string) => clearCartById(id),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["addToCart"],
@@ -120,6 +205,91 @@ const AddToCart = () => {
       })
     },
   })
+  const checkoutMutation = useMutation({
+    mutationFn: async ({
+      order,
+      manualPayment,
+      existingOrderId,
+    }: CheckoutPayload) => {
+      let orderId = existingOrderId
+      if (!orderId) {
+        const response = await createOrder(order)
+        if (response.success === false) {
+          throw new Error(response.message ?? "Could not create the order.")
+        }
+
+        orderId =
+          response.orderId ?? response.data?.orderId ?? response.data?.id
+        if (!orderId) {
+          throw new Error("The order response did not include an order ID.")
+        }
+      }
+
+      if (manualPayment) {
+        try {
+          const paymentResponse = await submitManualPayment(
+            orderId,
+            manualPayment
+          )
+          if (paymentResponse.success === false) {
+            throw new Error(
+              paymentResponse.message ?? "Could not submit the payment."
+            )
+          }
+        } catch (error) {
+          throw new ManualPaymentSubmissionError(
+            orderId,
+            `Order  was created, but payment submission failed: ${getApiErrorMessage(error)}`,
+            error
+          )
+        }
+      }
+
+      let cartCleared = false
+      let cartClearError: string | undefined
+      try {
+        const clearResponse = await deleteAddToCart()
+        if (clearResponse.success) {
+          cartCleared = true
+        } else {
+          cartClearError =
+            clearResponse.message ?? "The cart could not be cleared."
+        }
+      } catch (error) {
+        cartClearError = getApiErrorMessage(error)
+      }
+
+      return { orderId, cartCleared, cartClearError }
+    },
+
+    onSuccess: async ({ cartCleared, cartClearError }) => {
+      toast.success(`Order have been successfully!`)
+      if (!cartCleared) {
+        toast.error(
+          `Order was placed, but the cart could not be cleared: ${cartClearError ?? "Please clear it manually."}`
+        )
+      }
+      setPendingManualOrderId(null)
+      setIsCheckoutOpen(false)
+      form.reset()
+      if (paymentImageInputRef.current) {
+        paymentImageInputRef.current.value = ""
+      }
+      await queryClient.invalidateQueries({ queryKey: ["addToCart"] })
+    },
+    onError: (error) => {
+      if (error instanceof ManualPaymentSubmissionError) {
+        setPendingManualOrderId(error.orderId)
+      }
+      toast.error(getApiErrorMessage(error))
+    },
+  })
+
+  const handleCheckout = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    event.stopPropagation()
+    void form.handleSubmit()
+  }
 
   if (isPending) return <p>loading</p>
 
@@ -444,7 +614,10 @@ const AddToCart = () => {
                         </motion.span>
                       </div>
 
-                      <Dialog>
+                      <Dialog
+                        open={isCheckoutOpen}
+                        onOpenChange={setIsCheckoutOpen}
+                      >
                         <DialogTrigger
                           render={
                             <Button
@@ -466,67 +639,326 @@ const AddToCart = () => {
                             </DialogDescription>
                           </DialogHeader>
 
-                          <div className="space-y-4 py-4">
-                            <div className="grid gap-4 sm:grid-cols-2">
-                              <div className="space-y-2">
-                                <label className="text-sm font-medium">
-                                  Your name
-                                </label>
-                                <Input
-                                  placeholder="Your name"
-                                  className="rounded-xl border-white/40 bg-white/30 backdrop-blur-xl dark:border-white/10 dark:bg-white/5"
-                                />
+                          <form onSubmit={handleCheckout}>
+                            <div className="space-y-4 py-4">
+                              {pendingManualOrderId && (
+                                <p className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 text-sm text-amber-800 dark:text-amber-200">
+                                  Order {pendingManualOrderId} already exists.
+                                  Submitting again will retry its payment, not
+                                  create another order.
+                                </p>
+                              )}
+                              <div className="grid gap-4 sm:grid-cols-2">
+                                <form.Field name="shippingName">
+                                  {(field) => (
+                                    <Field>
+                                      <FieldLabel htmlFor={field.name}>
+                                        Your name
+                                      </FieldLabel>
+                                      <Input
+                                        id={field.name}
+                                        name={field.name}
+                                        value={field.state.value}
+                                        onBlur={field.handleBlur}
+                                        onChange={(event) =>
+                                          field.handleChange(event.target.value)
+                                        }
+                                        placeholder="Your name"
+                                        aria-invalid={
+                                          field.state.meta.errors.length > 0
+                                        }
+                                      />
+                                      <FieldError
+                                        errors={field.state.meta.errors}
+                                      />
+                                    </Field>
+                                  )}
+                                </form.Field>
+
+                                <form.Field name="shippingPhone">
+                                  {(field) => (
+                                    <Field>
+                                      <FieldLabel htmlFor={field.name}>
+                                        Phone number
+                                      </FieldLabel>
+                                      <Input
+                                        id={field.name}
+                                        name={field.name}
+                                        type="tel"
+                                        value={field.state.value}
+                                        onBlur={field.handleBlur}
+                                        onChange={(event) =>
+                                          field.handleChange(event.target.value)
+                                        }
+                                        placeholder="09 123 456 789"
+                                        aria-invalid={
+                                          field.state.meta.errors.length > 0
+                                        }
+                                      />
+                                      <FieldError
+                                        errors={field.state.meta.errors}
+                                      />
+                                    </Field>
+                                  )}
+                                </form.Field>
                               </div>
 
+                              <form.Field name="shippingAddress">
+                                {(field) => (
+                                  <Field>
+                                    <FieldLabel htmlFor={field.name}>
+                                      Delivery address
+                                    </FieldLabel>
+                                    <Textarea
+                                      id={field.name}
+                                      name={field.name}
+                                      value={field.state.value}
+                                      onBlur={field.handleBlur}
+                                      onChange={(event) =>
+                                        field.handleChange(event.target.value)
+                                      }
+                                      placeholder="No. 12, Main Street, Yangon"
+                                      aria-invalid={
+                                        field.state.meta.errors.length > 0
+                                      }
+                                      className="min-h-24 resize-none rounded-xl border-white/40 bg-white/30 backdrop-blur-xl dark:border-white/10 dark:bg-white/5"
+                                    />
+                                    <FieldError
+                                      errors={field.state.meta.errors}
+                                    />
+                                  </Field>
+                                )}
+                              </form.Field>
+
+                              <form.Field name="note">
+                                {(field) => (
+                                  <Field>
+                                    <FieldLabel htmlFor={field.name}>
+                                      Order note{" "}
+                                      <span className="text-muted-foreground">
+                                        (optional)
+                                      </span>
+                                    </FieldLabel>
+                                    <Textarea
+                                      id={field.name}
+                                      name={field.name}
+                                      value={field.state.value}
+                                      onBlur={field.handleBlur}
+                                      onChange={(event) =>
+                                        field.handleChange(event.target.value)
+                                      }
+                                      placeholder="Any delivery instructions?"
+                                      aria-invalid={
+                                        field.state.meta.errors.length > 0
+                                      }
+                                      className="min-h-20 resize-none rounded-xl border-white/40 bg-white/30 backdrop-blur-xl dark:border-white/10 dark:bg-white/5"
+                                    />
+                                    <FieldError
+                                      errors={field.state.meta.errors}
+                                    />
+                                  </Field>
+                                )}
+                              </form.Field>
+
                               <div className="space-y-2">
-                                <label className="text-sm font-medium">
-                                  Email
-                                </label>
-                                <Input
-                                  placeholder="you@example.com"
-                                  type="email"
-                                  className="rounded-xl border-white/40 bg-white/30 backdrop-blur-xl dark:border-white/10 dark:bg-white/5"
-                                />
+                                <span className="text-sm font-medium">
+                                  Choose how to pay
+                                </span>
+                                <form.Field name="providerCode">
+                                  {(field) => (
+                                    <div
+                                      className="grid gap-3 sm:grid-cols-2"
+                                      role="group"
+                                      aria-label="Payment provider"
+                                    >
+                                      {(
+                                        [
+                                          {
+                                            code: "KBZ_PAY",
+                                            name: "KBZ Pay",
+                                            detail: "Pay with KBZPay",
+                                            mark: "K",
+                                            colors:
+                                              "bg-blue-600 text-white shadow-blue-600/20",
+                                          },
+                                          {
+                                            code: "WAVE_MONEY",
+                                            name: "Wave Pay",
+                                            detail: "Pay with Wave Money",
+                                            mark: "W",
+                                            colors:
+                                              "bg-yellow-500 text-white shadow-yellow-500/20",
+                                          },
+                                        ] as const
+                                      ).map((provider) => {
+                                        const selected =
+                                          field.state.value === provider.code
+                                        return (
+                                          <button
+                                            key={provider.code}
+                                            type="button"
+                                            aria-pressed={selected}
+                                            onClick={() =>
+                                              field.handleChange(provider.code)
+                                            }
+                                            className={`relative flex items-center gap-3 rounded-2xl border p-4 text-left transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg ${
+                                              selected
+                                                ? "border-primary bg-primary/5 shadow-md ring-2 ring-primary/20"
+                                                : "border-border bg-card/60 hover:border-primary/40"
+                                            }`}
+                                          >
+                                            <span
+                                              className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl text-xl font-bold shadow-lg ${provider.colors}`}
+                                            >
+                                              {provider.mark}
+                                            </span>
+                                            <span className="min-w-0 flex-1">
+                                              <span className="block font-semibold">
+                                                {provider.name}
+                                              </span>
+                                              <span className="mt-0.5 block text-xs text-muted-foreground">
+                                                {provider.detail}
+                                              </span>
+                                            </span>
+                                            <span
+                                              className={`flex h-5 w-5 items-center justify-center rounded-full border ${
+                                                selected
+                                                  ? "border-primary bg-primary text-primary-foreground"
+                                                  : "border-muted-foreground/30"
+                                              }`}
+                                            >
+                                              {selected && (
+                                                <Check className="h-3 w-3" />
+                                              )}
+                                            </span>
+                                          </button>
+                                        )
+                                      })}
+                                      <FieldError
+                                        errors={field.state.meta.errors}
+                                      />
+                                    </div>
+                                  )}
+                                </form.Field>
                               </div>
-                            </div>
 
-                            <div className="space-y-2">
-                              <label className="text-sm font-medium">
-                                Delivery address
-                              </label>
-                              <Textarea
-                                placeholder="No. 12, Main Street, Yangon"
-                                className="min-h-24 resize-none rounded-xl border-white/40 bg-white/30 backdrop-blur-xl dark:border-white/10 dark:bg-white/5"
-                              />
-                            </div>
-
-                            <div className="space-y-2">
-                              <label className="text-sm font-medium">
-                                Phone number
-                              </label>
-                              <Input
-                                placeholder="09 123 456 789"
-                                className="rounded-xl border-white/40 bg-white/30 backdrop-blur-xl dark:border-white/10 dark:bg-white/5"
-                              />
-                            </div>
-                          </div>
-
-                          <DialogFooter className="gap-2">
-                            <DialogClose>
-                              <Button
-                                type="button"
-                                variant="outline"
-                                className="rounded-full"
+                              <form.Subscribe
+                                selector={(state) => state.values.providerCode}
                               >
-                                Cancel
-                              </Button>
-                            </DialogClose>
+                                {(selectedProvider) => (
+                                  <div className="grid gap-4 rounded-2xl border border-primary/10 bg-linear-to-br from-primary/5 via-background to-violet-500/5 p-4 sm:grid-cols-[180px_1fr] sm:items-center">
+                                    <div className="relative mx-auto w-full max-w-44 overflow-hidden rounded-xl border bg-white p-2 shadow-sm">
+                                      <img
+                                        src={
+                                          selectedProvider === "KBZ_PAY"
+                                            ? "/kbz-pay-demo-qr.svg"
+                                            : "/wave-pay-demo-qr.svg"
+                                        }
+                                        alt={`${selectedProvider === "KBZ_PAY" ? "KBZ Pay" : "Wave Pay"} demo QR code, not for payment`}
+                                        className="h-auto w-full"
+                                      />
+                                      <span className="absolute top-3 right-3 rounded-full bg-red-600 px-2 py-1 text-[9px] font-bold tracking-wider text-white uppercase">
+                                        Demo
+                                      </span>
+                                    </div>
+                                    <div className="space-y-2">
+                                      <div className="flex items-center gap-2 font-semibold">
+                                        <QrCode className="h-4 w-4 text-primary" />
+                                        Scan to pay with{" "}
+                                        {selectedProvider === "KBZ_PAY"
+                                          ? "KBZ Pay"
+                                          : "Wave Pay"}
+                                      </div>
+                                      <p className="text-sm text-muted-foreground">
+                                        Scan the QR, then enter the transaction
+                                        reference and upload your payment
+                                        screenshot below.
+                                      </p>
+                                    </div>
+                                  </div>
+                                )}
+                              </form.Subscribe>
 
-                            <Button className="gap-2 rounded-full">
-                              <ShieldCheck className="h-4 w-4" />
-                              Confirm order
-                            </Button>
-                          </DialogFooter>
+                              <form.Field name="transactionReference">
+                                {(field) => (
+                                  <Field>
+                                    <FieldLabel htmlFor={field.name}>
+                                      Transaction reference
+                                    </FieldLabel>
+                                    <Input
+                                      id={field.name}
+                                      name={field.name}
+                                      value={field.state.value}
+                                      onBlur={field.handleBlur}
+                                      onChange={(event) =>
+                                        field.handleChange(event.target.value)
+                                      }
+                                      placeholder="Enter your transaction reference"
+                                      aria-invalid={
+                                        field.state.meta.errors.length > 0
+                                      }
+                                    />
+                                    <FieldError
+                                      errors={field.state.meta.errors}
+                                    />
+                                  </Field>
+                                )}
+                              </form.Field>
+
+                              <form.Field name="image">
+                                {(field) => (
+                                  <Field>
+                                    <FieldLabel htmlFor={field.name}>
+                                      Payment screenshot
+                                    </FieldLabel>
+                                    <Input
+                                      ref={paymentImageInputRef}
+                                      id={field.name}
+                                      name={field.name}
+                                      type="file"
+                                      accept="image/*"
+                                      onBlur={field.handleBlur}
+                                      onChange={(event) =>
+                                        field.handleChange(
+                                          event.currentTarget.files?.[0] ?? null
+                                        )
+                                      }
+                                      aria-invalid={
+                                        field.state.meta.errors.length > 0
+                                      }
+                                      className="h-auto rounded-xl border-white/40 bg-white/30 py-2 pl-3 backdrop-blur-xl file:mr-3 file:rounded-md file:border-0 file:bg-primary/10 file:px-3 file:py-1 file:text-sm file:font-medium file:text-primary dark:border-white/10 dark:bg-white/5"
+                                    />
+                                    <FieldError
+                                      errors={field.state.meta.errors}
+                                    />
+                                  </Field>
+                                )}
+                              </form.Field>
+                            </div>
+
+                            <DialogFooter className="gap-2">
+                              <DialogClose>
+                                <Button
+                                  type="button"
+                                  variant="outline"
+                                  className="rounded-full"
+                                >
+                                  Cancel
+                                </Button>
+                              </DialogClose>
+
+                              <Button
+                                type="submit"
+                                disabled={checkoutMutation.isPending}
+                                className="gap-2 rounded-full"
+                              >
+                                <ShieldCheck className="h-4 w-4" />
+                                {checkoutMutation.isPending
+                                  ? "Submitting..."
+                                  : "Confirm order"}
+                              </Button>
+                            </DialogFooter>
+                          </form>
                         </DialogContent>
                       </Dialog>
 

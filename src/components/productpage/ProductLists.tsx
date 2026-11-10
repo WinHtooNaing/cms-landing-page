@@ -6,6 +6,7 @@ import { toast } from "sonner"
 import { Link } from "react-router-dom"
 import { motion } from "motion/react"
 import type { newCollectionProps } from "@/api/products"
+import { useQueryClient } from "@tanstack/react-query"
 
 import { createAddToCart, type createAddToCartProps } from "@/api/addToCart"
 
@@ -37,16 +38,19 @@ const cardVariants = {
 }
 
 const ProductLists = ({ products }: ProductListsProps) => {
+  const queryClient = useQueryClient()
   const addToCart = async (payload: createAddToCartProps) => {
     try {
       const response = await createAddToCart(payload)
       if (response.success) {
         toast.success("product added to cart", { position: "bottom-right" })
+        await queryClient.invalidateQueries({ queryKey: ["addToCart"] })
       } else {
         throw new Error()
       }
     } catch (err) {
       toast.error("something went wrong")
+      console.log(err)
     }
   }
 
@@ -108,8 +112,10 @@ const ProductLists = ({ products }: ProductListsProps) => {
                       {/* Price */}
                       <div className="flex items-center gap-2 py-2">
                         <p className="text-sm text-muted-foreground line-through">
-                          {Number(product.price) + Number(product.price) / 10}{" "}
-                          ks
+                          {product.originalPrice == 0 || null
+                            ? ""
+                            : product.originalPrice}
+                          {product.originalPrice == 0 || null ? "" : "ks"}
                         </p>
                         <p className="font-bold text-primary">
                           {product.price} ks

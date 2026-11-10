@@ -14,12 +14,19 @@ export type productProps = {
 export type productDetailProps = {
   data: newCollectionProps
 }
+export type stockProps = {
+  availableQuantity: number
+  inStock: boolean
+}
 export type newCollectionProps = {
-  id: number
-  categoryId: number
+  id: string
+  categoryId: string
   name: string
   description: string
   price: number
+  originalPrice: number
+  discountPercentage: number
+  stock: stockProps
   imageUrl: string
   isActive: boolean
 }

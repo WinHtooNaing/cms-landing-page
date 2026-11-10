@@ -6,6 +6,8 @@ import { Link, NavLink } from "react-router-dom"
 import logo from "../assets/logo.png"
 import { useAuthStore } from "@/store/user-store"
 import { Avatar, AvatarFallback } from "./ui/avatar"
+import { getAddToCartItems } from "@/api/addToCart"
+import { useQuery } from "@tanstack/react-query"
 
 import {
   DropdownMenu,
@@ -18,6 +20,16 @@ import {
 } from "@/components/ui/dropdown-menu"
 const Navbar = () => {
   const user = useAuthStore((state) => state.user)
+  const { data: cartItems } = useQuery({
+    queryKey: ["addToCart"],
+    queryFn: async () => {
+      const response = await getAddToCartItems()
+      return response.data.items
+    },
+    enabled: user?.role === "CUSTOMER",
+  })
+  const cartCount =
+    cartItems?.reduce((total, item) => total + item.quantity, 0) ?? 0
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
 
@@ -67,11 +79,9 @@ const Navbar = () => {
             >
               <ShoppingCartPlus className="h-5 w-5" />
 
-              {/* <span className="absolute -top-1 -right-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1 text-xs font-bold text-primary-foreground">
-              {cart.length}
-            </span> */}
               <AnimatePresence mode="popLayout">
                 <motion.span
+                  key={cartCount}
                   initial={{ scale: 0, opacity: 0, y: -8 }}
                   animate={{ scale: 1, opacity: 1, y: 0 }}
                   exit={{ scale: 0, opacity: 0, y: 8 }}
@@ -82,7 +92,7 @@ const Navbar = () => {
                   }}
                   className="absolute -top-1 -right-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1 text-xs font-bold text-primary-foreground"
                 >
-                  0
+                  {cartCount}
                 </motion.span>
               </AnimatePresence>
             </Link>
@@ -105,6 +115,9 @@ const Navbar = () => {
                     <DropdownMenuLabel>My Account</DropdownMenuLabel>
                     <DropdownMenuItem>
                       <Link to="/profile">Profile</Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem>
+                      <Link to="/order">Order</Link>
                     </DropdownMenuItem>
                   </DropdownMenuGroup>
                   <DropdownMenuSeparator />

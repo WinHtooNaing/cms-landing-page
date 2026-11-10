@@ -1,14 +1,20 @@
+import { createAddToCart } from "@/api/addToCart"
 import { useAuthStore } from "@/store/user-store"
-import { useCartStore, type Product } from "@/store/cart-store"
+import { useQueryClient } from "@tanstack/react-query"
 import { useLocation, useNavigate } from "react-router-dom"
+import { toast } from "sonner"
+
+export type Product = {
+  id: string | number
+}
 
 export const useAddToCart = () => {
   const user = useAuthStore((state) => state.user)
-  const addProduct = useCartStore((state) => state.addToCart)
+  const queryClient = useQueryClient()
   const location = useLocation()
   const navigate = useNavigate()
 
-  return (product: Product) => {
+  return async (product: Product) => {
     if (user?.role !== "CUSTOMER") {
       navigate("/login", {
         state: {
@@ -18,6 +24,21 @@ export const useAddToCart = () => {
       return
     }
 
-    addProduct(product)
+    try {
+      const response = await createAddToCart({
+        productId: String(product.id),
+        quantity: 1,
+      })
+      if (!response.success) {
+        throw new Error(response.message ?? "Could not add product to cart.")
+      }
+
+      toast.success("Product added to cart.", { position: "bottom-right" })
+      await queryClient.invalidateQueries({ queryKey: ["addToCart"] })
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Could not add product to cart."
+      )
+    }
   }
 }

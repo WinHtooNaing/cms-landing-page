@@ -10,6 +10,7 @@ import Register from "./pages/auth/Register"
 import Login from "./pages/auth/Login"
 import AuthProvider from "./provider/AuthProvider"
 import RouteProtect from "./components/auth/RouteProtect"
+import OrderPage from "./pages/Order"
 
 export function App() {
   const router = createBrowserRouter([
@@ -47,6 +48,10 @@ export function App() {
             {
               path: "cart",
               element: <AddToCart />,
+            },
+            {
+              path: "order",
+              element: <OrderPage />,
             },
           ],
         },

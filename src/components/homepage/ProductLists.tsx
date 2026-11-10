@@ -122,8 +122,10 @@ const ProductLists = () => {
 
                       <div className="flex items-center gap-2 py-2">
                         <p className="text-sm text-muted-foreground line-through">
-                          {Number(product.price) + Number(product.price) / 10}{" "}
-                          ks
+                          {product.originalPrice == 0 || null
+                            ? ""
+                            : product.originalPrice}
+                          {product.originalPrice == 0 || null ? "" : "ks"}
                         </p>
                         <p className="font-bold text-primary">
                           {product.price} ks

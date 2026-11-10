@@ -7,23 +7,26 @@ import RelatedProduct from "@/components/RelatedProduct"
 import { motion } from "motion/react"
 import Typewriter from "@/components/TypeWriter"
 import { getProductDetail } from "@/api/products"
-import { useQuery } from "@tanstack/react-query"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
 import ProductDetailsSkeleton from "@/components/skeleton/ProductDetailsSkeleton"
 
 import { createAddToCart, type createAddToCartProps } from "@/api/addToCart"
 import { toast } from "sonner"
 const ProductDetails = () => {
   const { id } = useParams()
+  const queryClient = useQueryClient()
   const addToCart = async (payload: createAddToCartProps) => {
     try {
       const response = await createAddToCart(payload)
       if (response.success) {
         toast.success("product added to cart", { position: "bottom-right" })
+        await queryClient.invalidateQueries({ queryKey: ["addToCart"] })
       } else {
         throw new Error()
       }
     } catch (err) {
       toast.error("something went wrong")
+      console.log(err)
     }
   }
   const getDetail = async () => {
@@ -101,8 +104,29 @@ const ProductDetails = () => {
               <p className="text-3xl font-bold">{data.price} ks</p>
 
               <p className="text-lg text-gray-500 line-through">
-                {data.price - data.price / 10} ks
+                {data.originalPrice == 0 || null ? "" : data.originalPrice}
+                {data.originalPrice == 0 || null ? "" : "ks"}
               </p>
+            </div>
+            <div className="flex items-center gap-2">
+              {data.stock.availableQuantity === 0 ? (
+                <p className="text-red-500">Out of Stock</p>
+              ) : (
+                <>
+                  <p className="text-lg font-medium text-muted-foreground">
+                    Stock - {data.stock.availableQuantity}
+                  </p>
+                  <p className="text-green-600">InStock</p>
+                </>
+              )}
+            </div>
+            <div className="mt-2 flex items-center gap-1 text-red-500">
+              <p>
+                {data.discountPercentage == 0 || null
+                  ? ""
+                  : data.discountPercentage}
+              </p>
+              <p>{data.discountPercentage == 0 || null ? "" : "% discount"}</p>
             </div>
 
             <div className="mt-6">
@@ -117,19 +141,21 @@ const ProductDetails = () => {
             </div>
 
             <div className="mt-8 flex flex-wrap gap-4">
-              <Button
-                type="button"
-                className="h-12"
-                onClick={() =>
-                  addToCart({
-                    productId: data.id.toString(),
-                    quantity: 1,
-                  })
-                }
-              >
-                <ShoppingCart className="mr-2 h-5 w-5" />
-                Add to Cart
-              </Button>
+              {data.stock.availableQuantity !== 0 && (
+                <Button
+                  type="button"
+                  className="h-12"
+                  onClick={() =>
+                    addToCart({
+                      productId: data.id.toString(),
+                      quantity: 1,
+                    })
+                  }
+                >
+                  <ShoppingCart className="mr-2 h-5 w-5" />
+                  Add to Cart
+                </Button>
+              )}
 
               <Button variant="outline" className="h-12">
                 <Link to="/products">Continue Shopping</Link>

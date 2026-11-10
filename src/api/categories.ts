@@ -1,7 +1,7 @@
 import { axiosInstance } from "./axiosInstance"
 
 export type getCategoryProps = {
-  id: number
+  id: string
   name: string
   slug: string
   description: string

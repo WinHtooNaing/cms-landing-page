@@ -10,7 +10,7 @@ export type getAddToCartItemsProps = {
   slug: string
   imageUrl: string
   isActive: boolean
-  quantity: 2
+  quantity: number
   currentUnitPrice: number
   lineSubtotal: number
 }
@@ -33,7 +33,7 @@ export const deleteAddToCart = async () => {
   const response = await axiosInstance.delete("/cart")
   return response.data
 }
-export const deleteAddToCartById = async (id: number) => {
+export const deleteAddToCartById = async (id: string) => {
   const response = await axiosInstance.delete(`/cart/items/${id}`)
   return response.data
 }
