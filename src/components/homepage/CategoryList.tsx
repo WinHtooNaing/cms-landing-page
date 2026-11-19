@@ -49,7 +49,7 @@ const CategoryList = () => {
     queryKey: ["category_CMS"],
     queryFn: async () => {
       const response = await getCMSCategory()
-      return response.data.items
+      return response.data.items as { content: { category: string } }[]
     },
   })
   const categoryIds = new Set(
