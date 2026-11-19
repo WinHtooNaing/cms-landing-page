@@ -55,7 +55,7 @@ const ProductLists = () => {
       queryKey: ["cmsCollectionId"],
       queryFn: async () => {
         const response = await getCMSCollection()
-        return response.data.items
+        return response.data.items as { content: { productId: string } }[]
       },
     })
   const collectionIds = new Set(
