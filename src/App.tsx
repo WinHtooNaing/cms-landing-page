@@ -6,12 +6,22 @@ import Productspage from "./pages/Products"
 import Contactpage from "./pages/Contact"
 import ProductDetails from "./pages/ProductDetails"
 import AddToCart from "./pages/AddToCart"
+import Register from "./pages/auth/Register"
+import Login from "./pages/auth/Login"
+import AuthProvider from "./provider/AuthProvider"
+import RouteProtect from "./components/auth/RouteProtect"
+import OrderPage from "./pages/Order"
+import Profile from "./pages/Profile"
 
 export function App() {
   const router = createBrowserRouter([
     {
       path: "/",
-      element: <Main />,
+      element: (
+        <AuthProvider>
+          <Main />
+        </AuthProvider>
+      ),
       children: [
         {
           index: true,
@@ -34,13 +44,42 @@ export function App() {
           element: <ProductDetails />,
         },
         {
-          path: "/cart",
-          element: <AddToCart />,
+          element: <RouteProtect />,
+          children: [
+            {
+              path: "cart",
+              element: <AddToCart />,
+            },
+            {
+              path: "order",
+              element: <OrderPage />,
+            },
+            {
+              path: "/profile",
+              element: <Profile />,
+            },
+          ],
+        },
+        {
+          path: "/register",
+          element: <Register />,
+        },
+        {
+          path: "/login",
+          element: <Login />,
         },
       ],
     },
+    {
+      path: "/",
+      element: <Main />,
+    },
   ])
-  return <RouterProvider router={router} />
+  return (
+    <>
+      <RouterProvider router={router} />
+    </>
+  )
 }
 
 export default App
