@@ -15,6 +15,8 @@ import {
 import { CardContent, Card } from "@/components/ui/card"
 import { motion } from "motion/react"
 import Typewriter from "@/components/TypeWriter"
+import { getAboutSection } from "@/api/cms.about"
+import { useQuery } from "@tanstack/react-query"
 
 const sectionVariants = {
   hidden: { opacity: 0, y: 40 },
@@ -41,6 +43,15 @@ const itemVariants = {
   },
 }
 const Aboutpage = () => {
+  const { data } = useQuery({
+    queryKey: ["about"],
+    queryFn: async () => {
+      const response = await getAboutSection()
+      return response.data.sections
+    },
+  })
+  console.log(data)
+
   const coreValues = [
     {
       icon: ShieldCheck,

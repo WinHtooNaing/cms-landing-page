@@ -4,7 +4,7 @@ import { useEffect, useState } from "react"
 import { ArrowRight } from "lucide-react"
 import { motion, AnimatePresence } from "motion/react"
 import { useQuery } from "@tanstack/react-query"
-import { getCarousel } from "@/api/carousel"
+import { getCarousel } from "@/api/cms.carousel"
 import CarouselSkeleton from "../skeleton/CarouselSkeleton"
 
 export function ImageCaarousel() {

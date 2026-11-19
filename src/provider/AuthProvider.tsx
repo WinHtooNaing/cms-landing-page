@@ -16,14 +16,14 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
       try {
         const response = await checkCurrentUser()
-        if (!response.success || response.data.role !== "CUSTOMER") {
+        if (!response.success || response.data.user.role !== "CUSTOMER") {
           localStorage.removeItem("accessToken")
           localStorage.removeItem("refreshToken")
           setUser(null)
           return
         }
 
-        const { id, name, email, phone, role } = response.data
+        const { id, name, email, phone, role } = response.data.user
         setUser({ id, name, email, phone, role })
       } catch (error) {
         console.error("Failed to restore the current user session", error)

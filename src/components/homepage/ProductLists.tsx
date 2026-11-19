@@ -11,6 +11,7 @@ import Typewriter from "../TypeWriter"
 import { newCollection } from "@/api/products"
 import { useQuery } from "@tanstack/react-query"
 import ProductSkeleton from "../skeleton/ProductSkeleton"
+import { getCMSCollection } from "@/api/cms.new-collection"
 
 // Parent animation
 const containerVariants = {
@@ -49,9 +50,24 @@ const ProductLists = () => {
     queryKey: ["collection"],
     queryFn: collectionData,
   })
+  const { data: cmsCollectionData, isLoading: isCmsCollectionLoading } =
+    useQuery({
+      queryKey: ["cmsCollectionId"],
+      queryFn: async () => {
+        const response = await getCMSCollection()
+        return response.data.items
+      },
+    })
+  const collectionIds = new Set(
+    (cmsCollectionData ?? []).map((item) => String(item.content.productId))
+  )
+
+  const filteredCollections = (data ?? []).filter((collection) =>
+    collectionIds.has(String(collection.id))
+  )
 
   if (isError) return <p>Something went wrong</p>
-  if (isLoading) {
+  if (isLoading || isCmsCollectionLoading) {
     return (
       <div className="mt-4 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
         {Array.from({ length: 8 }).map((_, index) => (
@@ -72,7 +88,7 @@ const ProductLists = () => {
       >
         <Typewriter text="New Collections" speed={200} />
       </motion.h1>
-      {data && (
+      {filteredCollections && (
         <>
           <motion.div
             variants={containerVariants}
@@ -84,7 +100,7 @@ const ProductLists = () => {
             }}
             className="mt-4 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4"
           >
-            {data.map((product) => (
+            {filteredCollections.map((product) => (
               <motion.div
                 variants={cardVariants}
                 whileHover={{

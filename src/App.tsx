@@ -11,6 +11,7 @@ import Login from "./pages/auth/Login"
 import AuthProvider from "./provider/AuthProvider"
 import RouteProtect from "./components/auth/RouteProtect"
 import OrderPage from "./pages/Order"
+import Profile from "./pages/Profile"
 
 export function App() {
   const router = createBrowserRouter([
@@ -52,6 +53,10 @@ export function App() {
             {
               path: "order",
               element: <OrderPage />,
+            },
+            {
+              path: "/profile",
+              element: <Profile />,
             },
           ],
         },

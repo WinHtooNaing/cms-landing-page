@@ -19,7 +19,7 @@ export type CarouselResponse = {
     items: CarouselItem[]
   }
 }
-const carousel_section_id = "51f6ac36-14e0-448e-894c-448f6d579934"
+const carousel_section_id = import.meta.env.VITE_IMAGE_CAROUSEL
 
 export const getCarousel = async (): Promise<CarouselResponse> => {
   const { data } = await axiosInstance.get<CarouselResponse>(

@@ -6,6 +6,7 @@ import Typewriter from "../TypeWriter"
 import { getCategories } from "@/api/categories"
 import { useQuery } from "@tanstack/react-query"
 import CategorySkeleton from "../skeleton/CategorySkeleton"
+import { getCMSCategory } from "@/api/cms.categories"
 
 // Parent animation
 const containerVariants = {
@@ -44,8 +45,22 @@ const CategoryList = () => {
     queryKey: ["category"],
     queryFn: getCategory,
   })
+  const { data: categoryCMSData, isPending: isCMSPending } = useQuery({
+    queryKey: ["category_CMS"],
+    queryFn: async () => {
+      const response = await getCMSCategory()
+      return response.data.items
+    },
+  })
+  const categoryIds = new Set(
+    (categoryCMSData ?? []).map((item) => String(item.content.category))
+  )
 
-  if (isPending) {
+  const filteredCategories = (data ?? []).filter((category) =>
+    categoryIds.has(String(category.id))
+  )
+
+  if (isPending || isCMSPending) {
     return (
       <>
         <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -101,8 +116,8 @@ const CategoryList = () => {
         }}
         className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4"
       >
-        {data &&
-          data.map((category) => (
+        {filteredCategories &&
+          filteredCategories.map((category) => (
             <motion.div
               key={category.id}
               variants={cardVariants}
