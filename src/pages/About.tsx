@@ -11,13 +11,14 @@ import {
   Zap,
   Headphones,
   Truck,
+  ShieldAlert,
 } from "lucide-react"
 import { CardContent, Card } from "@/components/ui/card"
 import { motion } from "motion/react"
 import Typewriter from "@/components/TypeWriter"
 import { getAboutSection } from "@/api/cms.about"
 import { useQuery } from "@tanstack/react-query"
-
+import { ABOUT_SECTION_KEYS } from "@/lib/cms-key"
 const sectionVariants = {
   hidden: { opacity: 0, y: 40 },
   visible: {
@@ -42,68 +43,39 @@ const itemVariants = {
     transition: { duration: 0.5, ease: "easeOut" as const },
   },
 }
+const coreValueIcons = [ShieldCheck, Heart, Lightbulb, Users]
+const whyChooseUsIcons = [Headphones, Truck, Heart, ShieldAlert]
 const Aboutpage = () => {
-  const { data } = useQuery({
+  const { data: sections = [], isPending } = useQuery({
     queryKey: ["about"],
     queryFn: async () => {
       const response = await getAboutSection()
       return response.data.sections
     },
   })
-  console.log(data)
+  if (isPending) {
+    return (
+      <section className="flex h-screen w-full items-center justify-center">
+        <span className="items-center text-center">Loading...</span>
+      </section>
+    )
+  }
 
-  const coreValues = [
-    {
-      icon: ShieldCheck,
-      title: "Quality & Trust",
-      description:
-        "We focus on quality products and transparent information so customers can shop with confidence.",
-    },
-    {
-      icon: Heart,
-      title: "Customer First",
-      description:
-        "We put our customers first by making their shopping experience simple, helpful, and enjoyable.",
-    },
-    {
-      icon: Lightbulb,
-      title: "Innovation",
-      description:
-        "We embrace new technologies and ideas to make discovering the right products easier.",
-    },
-    {
-      icon: Users,
-      title: "Community",
-      description:
-        "We aim to build lasting relationships with customers through reliable service and support.",
-    },
-  ]
-  const benefits = [
-    {
-      icon: ShieldCheck,
-      title: "Quality Products",
-      description:
-        "Explore carefully selected technology products with clear and helpful product information.",
-    },
-    {
-      icon: Truck,
-      title: "Convenient Shopping",
-      description:
-        "Browse products and discover options that suit your needs from wherever you are.",
-    },
-    {
-      icon: Headphones,
-      title: "Helpful Support",
-      description:
-        "Our contact team is available to help answer your questions and guide your shopping experience.",
-    },
-    {
-      icon: Zap,
-      title: "Modern Technology",
-      description:
-        "Discover modern electronics and technology products in one convenient place.",
-    },
-  ]
+  const introduction = sections.find(
+    ({ key }) => key === ABOUT_SECTION_KEYS.INTRODUCTION
+  )
+  const whoWeAre = sections.find(
+    ({ key }) => key === ABOUT_SECTION_KEYS.WHO_WE_ARE
+  )
+  const coreValues = sections.find(
+    ({ key }) => key === ABOUT_SECTION_KEYS.CORE_VALUES
+  )
+  const Mission_Vision = sections.find(
+    ({ key }) => key === ABOUT_SECTION_KEYS.MISSION_VISION
+  )
+  const whyChooseUs = sections.find(
+    ({ key }) => key === ABOUT_SECTION_KEYS.WHY_CHOOSE_US
+  )
 
   return (
     <>
@@ -121,19 +93,18 @@ const Aboutpage = () => {
           <div className="mx-auto max-w-7xl">
             <div className="max-w-4xl pl-16">
               <span className="inline-flex rounded-full border border-border bg-secondary px-4 py-2 text-sm font-medium text-secondary-foreground">
-                Get to Know Us
+                {introduction?.content.badge}
               </span>
 
               <h1 className="mt-6 text-4xl leading-tight font-bold tracking-tight sm:text-4xl lg:text-5xl">
-                Technology That
-                <span className="block text-primary">Moves You Forward.</span>
+                {introduction?.content.heading}
+                <span className="block text-primary">
+                  {introduction?.content.highlightedHeading}
+                </span>
               </h1>
 
               <p className="mt-6 max-w-4xl text-justify text-base leading-8 text-primary sm:text-lg">
-                Welcome to Tech Haven, your destination for discovering modern
-                technology and electronics. We believe that finding the right
-                technology should be simple, convenient, and accessible to
-                everyone.
+                {introduction?.content.description}
               </p>
             </div>
           </div>
@@ -190,37 +161,33 @@ const Aboutpage = () => {
               className="pt-4 lg:pt-0"
             >
               <span className="text-sm font-semibold tracking-widest text-primary uppercase">
-                Who We Are
+                {whoWeAre?.content.badge}
               </span>
 
               <h2 className="mt-4 text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-                Making Technology
-                <span className="block text-primary">Easier for Everyone</span>
+                {whoWeAre?.content.heading}
+                <span className="block text-primary">
+                  {whoWeAre?.content.highlightedHeading}
+                </span>
               </h2>
 
               <p className="mt-6 leading-8 text-muted-foreground">
-                At Tech Haven, we want to make exploring technology easier for
-                everyone. Our platform brings technology products together in
-                one place, helping customers discover options that match their
-                interests and needs.
+                {whoWeAre?.content.description}
               </p>
 
               <p className="mt-4 leading-8 text-muted-foreground">
-                From everyday electronics to modern tech accessories, we aim to
-                provide a convenient browsing experience, useful product
-                information, and responsive customer support.
+                {whoWeAre?.content.secondaryDescription}
               </p>
               <div className="mt-7 space-y-4">
-                {[
-                  "Easy product discovery",
-                  "Clear product information",
-                  "Customer-focused service",
-                ].map((item) => (
-                  <div key={item} className="flex items-center gap-3">
+                {whoWeAre?.items.map((item) => (
+                  <div
+                    key={item.content.title}
+                    className="flex items-center gap-3"
+                  >
                     <CheckCircle2 className="h-5 w-5 shrink-0 text-primary" />
 
                     <span className="text-sm font-medium text-foreground sm:text-base">
-                      {item}
+                      {item.content.title}
                     </span>
                   </div>
                 ))}
@@ -266,13 +233,11 @@ const Aboutpage = () => {
                     </div>
 
                     <h3 className="mt-6 text-2xl font-bold text-foreground">
-                      Our Mission
+                      {Mission_Vision?.items[0].content.title}
                     </h3>
 
                     <p className="mt-4 leading-8 text-muted-foreground">
-                      Our mission is to make technology shopping simple and
-                      convenient by helping customers explore products,
-                      understand their options, and make informed decisions.
+                      {Mission_Vision?.items[0].content.description}
                     </p>
                   </CardContent>
                 </Card>
@@ -286,14 +251,11 @@ const Aboutpage = () => {
                     </div>
 
                     <h3 className="mt-6 text-2xl font-bold text-foreground">
-                      Our Vision
+                      {Mission_Vision?.items[1].content.title}
                     </h3>
 
                     <p className="mt-4 leading-8 text-muted-foreground">
-                      Our vision is to become a trusted destination for
-                      discovering technology products by creating an accessible,
-                      customer-focused, and continuously improving shopping
-                      experience.
+                      {Mission_Vision?.items[1].content.description}
                     </p>
                   </CardContent>
                 </Card>
@@ -331,12 +293,12 @@ const Aboutpage = () => {
               viewport={{ once: false, amount: 0.1 }}
               className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4"
             >
-              {coreValues.map((value) => {
-                const Icon = value.icon
+              {coreValues?.items.map((value, index) => {
+                const Icon = coreValueIcons[index] ?? ShieldCheck
 
                 return (
                   <Card
-                    key={value.title}
+                    key={value.content.title}
                     className="group rounded-2xl border-border transition-all duration-300 hover:-translate-y-1 hover:border-primary/30 hover:shadow-lg"
                   >
                     <CardContent className="p-6">
@@ -345,11 +307,11 @@ const Aboutpage = () => {
                       </div>
 
                       <h3 className="mt-5 text-lg font-bold text-foreground">
-                        {value.title}
+                        {value.content.title}
                       </h3>
 
                       <p className="mt-3 text-sm leading-7 text-muted-foreground">
-                        {value.description}
+                        {value.content.description}
                       </p>
                     </CardContent>
                   </Card>
@@ -388,12 +350,12 @@ const Aboutpage = () => {
               viewport={{ once: false, amount: 0.1 }}
               className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4"
             >
-              {benefits.map((benefit) => {
-                const Icon = benefit.icon
+              {whyChooseUs?.items.map((benefit, index) => {
+                const Icon = whyChooseUsIcons[index] ?? ShieldCheck
 
                 return (
                   <div
-                    key={benefit.title}
+                    key={benefit.content.title}
                     className="rounded-2xl border border-border bg-card p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
                   >
                     <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-secondary text-primary">
@@ -401,11 +363,11 @@ const Aboutpage = () => {
                     </div>
 
                     <h3 className="mt-5 text-lg font-bold text-foreground">
-                      {benefit.title}
+                      {benefit.content.title}
                     </h3>
 
                     <p className="mt-3 text-sm leading-7 text-muted-foreground">
-                      {benefit.description}
+                      {benefit.content.description}
                     </p>
                   </div>
                 )

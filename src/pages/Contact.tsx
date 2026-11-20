@@ -11,32 +11,50 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { motion } from "motion/react"
+import { useQuery } from "@tanstack/react-query"
+import { getContactSection } from "@/api/cms.contact"
 
 const Contactpage = () => {
+  const { data, isPending } = useQuery({
+    queryKey: ["contact-us"],
+    queryFn: async () => {
+      const response = await getContactSection()
+      return response.data.sections[0].content
+    },
+  })
+
+  if (isPending) {
+    return (
+      <div className="flex h-screen w-full items-center justify-center">
+        <span>loading...</span>
+      </div>
+    )
+  }
   const contactDetails = [
     {
       icon: Mail,
-      title: "Email Us",
-      description: "Send us an email anytime.",
-      value: "support@techhaven.com",
+      title: data?.emailTitle,
+      description: data?.emailDescription,
+      value: data?.email,
     },
     {
       icon: Phone,
-      title: "Call Us",
-      description: "Our team is ready to help.",
-      value: "+95 9 123 456 789",
+      title: data?.phoneTitle,
+      description: data?.phoneDescription,
+      value: data?.phone,
     },
     {
       icon: MapPin,
-      title: "Visit Us",
-      description: "Come and visit our store.",
-      value: "Yangon, Myanmar",
+      title: data?.addressTitle,
+      description: data?.addressDescription,
+      value: data?.address,
     },
     {
       icon: Clock,
-      title: "Business Hours",
-      description: "We're available during:",
-      value: "Mon – Fri, 8:30 AM – 5:00 PM",
+      title: data?.businessHoursTitle,
+      description: data?.businessHoursDescription,
+
+      value: `${data?.workingDays.at(0)} - ${data?.workingDays.at(-1)} , ${data?.openingTime} AM - ${data?.closingTime} PM`,
     },
   ]
 

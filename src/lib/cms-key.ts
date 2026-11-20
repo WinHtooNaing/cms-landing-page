@@ -8,7 +8,11 @@ export const CMS_DOCUMENT_KEYS = {
 export const CONTACT_SECTION_KEYS = {
   GET_IN_TOUCH: "get-in-touch",
 } as const
-
+export const HOME_SECTION_KEYS = {
+  IMAGE_CAROUSEL: "image-carousel",
+  CATEGORY: "category",
+  COLLECTION: "collection",
+}
 export const ABOUT_SECTION_KEYS = {
   INTRODUCTION: "introduction",
   WHO_WE_ARE: "who-we-are",
