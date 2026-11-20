@@ -11,8 +11,11 @@ import Typewriter from "../TypeWriter"
 import { newCollection } from "@/api/products"
 import { useQuery } from "@tanstack/react-query"
 import ProductSkeleton from "../skeleton/ProductSkeleton"
-import { getCMSCollection } from "@/api/cms.new-collection"
+import type { HomeSection } from "@/api/cms.home"
 
+type CollectionProps = {
+  data: HomeSection["items"]
+}
 // Parent animation
 const containerVariants = {
   hidden: {},
@@ -41,33 +44,30 @@ const cardVariants = {
   },
 }
 
-const ProductLists = () => {
+const ProductLists = ({ data }: CollectionProps) => {
   const collectionData = async () => {
     const response = await newCollection()
     return response.data.items
   }
-  const { isError, data, isLoading } = useQuery({
+  const {
+    isError,
+    data: collection,
+    isLoading,
+  } = useQuery({
     queryKey: ["collection"],
     queryFn: collectionData,
   })
-  const { data: cmsCollectionData, isLoading: isCmsCollectionLoading } =
-    useQuery({
-      queryKey: ["cmsCollectionId"],
-      queryFn: async () => {
-        const response = await getCMSCollection()
-        return response.data.items as { content: { productId: string } }[]
-      },
-    })
+
   const collectionIds = new Set(
-    (cmsCollectionData ?? []).map((item) => String(item.content.productId))
+    (data ?? []).map((item) => String(item.content.productId))
   )
 
-  const filteredCollections = (data ?? []).filter((collection) =>
+  const filteredCollections = (collection ?? []).filter((collection) =>
     collectionIds.has(String(collection.id))
   )
 
   if (isError) return <p>Something went wrong</p>
-  if (isLoading || isCmsCollectionLoading) {
+  if (isLoading) {
     return (
       <div className="mt-4 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
         {Array.from({ length: 8 }).map((_, index) => (

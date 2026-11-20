@@ -3,21 +3,14 @@ import { Link } from "react-router-dom"
 import { useEffect, useState } from "react"
 import { ArrowRight } from "lucide-react"
 import { motion, AnimatePresence } from "motion/react"
-import { useQuery } from "@tanstack/react-query"
-import { getCarousel } from "@/api/cms.carousel"
-import CarouselSkeleton from "../skeleton/CarouselSkeleton"
 
-export function ImageCaarousel() {
+import type { HomeSection } from "@/api/cms.home"
+
+type ImageCarouselProps = {
+  slides: HomeSection["items"]
+}
+export function ImageCaarousel({ slides }: ImageCarouselProps) {
   const [currentSlide, setCurrentSlide] = useState(0)
-  const {
-    data: slides = [],
-    isPending,
-    isError,
-    error,
-  } = useQuery({
-    queryKey: ["carousel"],
-    queryFn: async () => (await getCarousel()).data.items,
-  })
 
   useEffect(() => {
     if (slides.length < 2) return
@@ -29,16 +22,6 @@ export function ImageCaarousel() {
     return () => clearInterval(interval)
   }, [slides.length])
 
-  if (isPending) return <CarouselSkeleton />
-  if (isError) {
-    return (
-      <p>
-        {error instanceof Error
-          ? error.message
-          : "Something went wrong while loading the carousel."}
-      </p>
-    )
-  }
   if (slides.length === 0) return null
 
   const activeSlideIndex = currentSlide % slides.length
@@ -121,7 +104,7 @@ export function ImageCaarousel() {
         <div className="absolute bottom-5 left-1/2 z-20 flex -translate-x-1/2 items-center gap-2">
           {slides.map((_, index) => (
             <button
-              key={slides[index].id}
+              key={slides[index].content.productId}
               type="button"
               onClick={() => setCurrentSlide(index)}
               aria-label={`Go to slide ${index + 1}`}
