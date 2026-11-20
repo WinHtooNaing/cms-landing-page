@@ -6,8 +6,11 @@ import Typewriter from "../TypeWriter"
 import { getCategories } from "@/api/categories"
 import { useQuery } from "@tanstack/react-query"
 import CategorySkeleton from "../skeleton/CategorySkeleton"
-import { getCMSCategory } from "@/api/cms.categories"
+import type { HomeSection } from "@/api/cms.home"
 
+type CategoryProps = {
+  data: HomeSection["items"]
+}
 // Parent animation
 const containerVariants = {
   hidden: {},
@@ -36,31 +39,29 @@ const cardVariants = {
   },
 }
 
-const CategoryList = () => {
+const CategoryList = ({ data }: CategoryProps) => {
   const getCategory = async () => {
     const response = await getCategories()
     return response.data
   }
-  const { isPending, error, data } = useQuery({
+  const {
+    isPending,
+    error,
+    data: categoryData,
+  } = useQuery({
     queryKey: ["category"],
     queryFn: getCategory,
   })
-  const { data: categoryCMSData, isPending: isCMSPending } = useQuery({
-    queryKey: ["category_CMS"],
-    queryFn: async () => {
-      const response = await getCMSCategory()
-      return response.data.items as { content: { category: string } }[]
-    },
-  })
+
   const categoryIds = new Set(
-    (categoryCMSData ?? []).map((item) => String(item.content.category))
+    (data ?? []).map((item) => String(item.content.category))
   )
 
-  const filteredCategories = (data ?? []).filter((category) =>
+  const filteredCategories = (categoryData ?? []).filter((category) =>
     categoryIds.has(String(category.id))
   )
 
-  if (isPending || isCMSPending) {
+  if (isPending) {
     return (
       <>
         <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">

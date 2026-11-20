@@ -175,7 +175,7 @@ const Register = () => {
 
                       <Input
                         {...field}
-                        type="text"
+                        type="password"
                         name="password"
                         placeholder="Enter your Password"
                         className={`${fieldState.invalid ? "border-red-500" : ""} h-12 rounded-xl bg-white/30 pl-10 backdrop-blur-xl focus-visible:border-primary focus-visible:ring-primary/50`}
