@@ -3,7 +3,7 @@ export const CMS_DOCUMENT_KEYS = {
   HOME: "home",
   SITE_SETTINGS: "site-settings",
   CONTACT_US: "contact-us",
-  FOOTER: "footer"
+  FOOTER: "footer",
 } as const
 
 export const CONTACT_SECTION_KEYS = {

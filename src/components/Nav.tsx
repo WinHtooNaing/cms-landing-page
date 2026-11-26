@@ -1,13 +1,16 @@
 import { AnimatePresence, motion } from "motion/react"
-
 import { Menu, ShoppingCartPlus, X } from "lucide-react"
 import { useState } from "react"
 import { Link, NavLink } from "react-router-dom"
-import logo from "../assets/logo.png"
-import { useAuthStore } from "@/store/user-store"
-import { Avatar, AvatarFallback } from "./ui/avatar"
-import { getAddToCartItems } from "@/api/addToCart"
 import { useQuery } from "@tanstack/react-query"
+
+import logo from "../assets/logo.png"
+
+import { useAuthStore } from "@/store/user-store"
+import { getAddToCartItems } from "@/api/addToCart"
+import { getLogoSection } from "@/api/cms.logo"
+
+import { Avatar, AvatarFallback } from "./ui/avatar"
 
 import {
   DropdownMenu,
@@ -18,8 +21,26 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+
 const Navbar = () => {
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
+
   const user = useAuthStore((state) => state.user)
+
+  const { data: siteSettings } = useQuery({
+    queryKey: ["site-settings"],
+    queryFn: getLogoSection,
+    staleTime: 0,
+    refetchInterval: 30 * 1000,
+  })
+
+  const headerSection = siteSettings?.data.sections.find(
+    (section) => section.key === "header"
+  )
+
+  const logoUrl = headerSection?.imageUrl || logo
+  const logoAlt = headerSection?.content.alt || "Tech Haven"
+
   const { data: cartItems } = useQuery({
     queryKey: ["addToCart"],
     queryFn: async () => {
@@ -28,11 +49,11 @@ const Navbar = () => {
     },
     enabled: user?.role === "CUSTOMER",
   })
+
   const cartCount =
     cartItems?.reduce((total, item) => total + item.quantity, 0) ?? 0
 
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
-
+  // Navigation Links
   const navLinks = [
     { name: "Home", path: "/" },
     { name: "Products", path: "/products" },
@@ -40,10 +61,12 @@ const Navbar = () => {
     { name: "Contact", path: "/contact" },
   ]
 
+  // Close Mobile Sidebar
   const closeSidebar = () => {
     setIsSidebarOpen(false)
   }
 
+  // Navigation Link Styles
   const navLinkClass = ({ isActive }: { isActive: boolean }) =>
     `rounded-full px-5 py-2.5 text-sm transition-all duration-300 ${
       isActive
@@ -51,13 +74,25 @@ const Navbar = () => {
         : "text-muted-foreground hover:bg-white/10 hover:text-foreground"
     }`
 
+  // Logout
+  const handleLogout = () => {
+    useAuthStore.getState().setUser(null)
+    localStorage.removeItem("accessToken")
+    localStorage.removeItem("refreshToken")
+  }
+
   return (
     <>
       {/* Navbar */}
       <nav className="fixed top-0 left-1/2 z-50 flex w-full -translate-x-1/2 items-center justify-between px-4 py-3 text-foreground shadow-md shadow-black/5 backdrop-blur-2xl md:px-20">
-        {/* Logo */}
+        {/* Desktop Logo */}
         <NavLink to="/" className="shrink-0">
-          <img src={logo} alt="Logo" width={130} className="object-contain" />
+          <img
+            src={logoUrl}
+            alt={logoAlt}
+            width={130}
+            className="object-contain"
+          />
         </NavLink>
 
         {/* Desktop Navigation */}
@@ -69,8 +104,9 @@ const Navbar = () => {
           ))}
         </div>
 
-        {/* Cart + Mobile Menu */}
+        {/* Cart + User + Mobile Menu */}
         <div className="flex items-center gap-2">
+          {/* Shopping Cart */}
           {user?.role === "CUSTOMER" && (
             <Link
               to="/cart"
@@ -97,38 +133,42 @@ const Navbar = () => {
               </AnimatePresence>
             </Link>
           )}
+
+          {/* User Account */}
           <div className="max-sm:hidden">
             {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger
                   render={
                     <Avatar>
-                      {/* <AvatarImage src="https://github.com/shadcn.png" /> */}
-                      <AvatarFallback>{user.name.slice(0, 1)}</AvatarFallback>
+                      <AvatarFallback>
+                        {user.name.slice(0, 1).toUpperCase()}
+                      </AvatarFallback>
                     </Avatar>
                   }
                 >
                   Open
                 </DropdownMenuTrigger>
+
                 <DropdownMenuContent>
                   <DropdownMenuGroup>
                     <DropdownMenuLabel>My Account</DropdownMenuLabel>
+
                     <DropdownMenuItem>
                       <Link to="/profile">Profile</Link>
                     </DropdownMenuItem>
+
                     <DropdownMenuItem>
                       <Link to="/order">Order</Link>
                     </DropdownMenuItem>
                   </DropdownMenuGroup>
+
                   <DropdownMenuSeparator />
+
                   <DropdownMenuGroup>
                     <DropdownMenuItem
-                      className={"text-red-500 hover:bg-red-500"}
-                      onClick={() => {
-                        useAuthStore.getState().setUser(null)
-                        localStorage.removeItem("accessToken")
-                        localStorage.removeItem("refreshToken")
-                      }}
+                      className="text-red-500 hover:bg-red-500"
+                      onClick={handleLogout}
                     >
                       Logout
                     </DropdownMenuItem>
@@ -184,7 +224,12 @@ const Navbar = () => {
         {/* Sidebar Header */}
         <div className="mb-10 flex items-center justify-between">
           <NavLink to="/" onClick={closeSidebar}>
-            <img src={logo} alt="Logo" width={120} className="object-contain" />
+            <img
+              src={logoUrl}
+              alt={logoAlt}
+              width={120}
+              className="object-contain"
+            />
           </NavLink>
 
           <button
@@ -197,7 +242,7 @@ const Navbar = () => {
           </button>
         </div>
 
-        {/* Sidebar Links */}
+        {/* Mobile Sidebar Links */}
         <div className="flex flex-col gap-3">
           {navLinks.map((link) => (
             <NavLink
