@@ -11,7 +11,6 @@ const queryClient = new QueryClient()
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    {/* <ThemeProvider> */}
     <TooltipProvider>
       <QueryClientProvider client={queryClient}>
         <ReactQueryDevtools initialIsOpen={true} />
@@ -19,6 +18,5 @@ createRoot(document.getElementById("root")!).render(
       </QueryClientProvider>
       <Toaster position="top-right" duration={3000} theme="light" richColors />
     </TooltipProvider>
-    {/* </ThemeProvider> */}
   </StrictMode>
 )

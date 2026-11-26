@@ -3,6 +3,7 @@ export const CMS_DOCUMENT_KEYS = {
   HOME: "home",
   SITE_SETTINGS: "site-settings",
   CONTACT_US: "contact-us",
+  FOOTER: "footer"
 } as const
 
 export const CONTACT_SECTION_KEYS = {
@@ -12,6 +13,11 @@ export const HOME_SECTION_KEYS = {
   IMAGE_CAROUSEL: "image-carousel",
   CATEGORY: "category",
   COLLECTION: "collection",
+}
+export const FOOTER_SECTION_KEYS = {
+  DESCRIPTION: "description",
+  SUPPORT_LINKS: "support-links",
+  SOCIAL_MEDIA: "social-media"
 }
 export const ABOUT_SECTION_KEYS = {
   INTRODUCTION: "introduction",
