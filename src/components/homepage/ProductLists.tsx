@@ -65,6 +65,7 @@ const ProductLists = ({ data }: CollectionProps) => {
   const filteredCollections = (collection ?? []).filter((collection) =>
     collectionIds.has(String(collection.id))
   )
+  
 
   if (isError) return <p>Something went wrong</p>
   if (isLoading) {
@@ -102,6 +103,7 @@ const ProductLists = ({ data }: CollectionProps) => {
           >
             {filteredCollections.map((product) => (
               <motion.div
+              key={product.id}
                 variants={cardVariants}
                 whileHover={{
                   y: -8,
@@ -112,8 +114,23 @@ const ProductLists = ({ data }: CollectionProps) => {
                   ease: "easeOut",
                 }}
               >
-                <Card>
+                <Card className="relative overflow-hidden"> 
+                  {product.discountPercentage > 0 && (
+          <div className="absolute right-3 top-3 z-10 rounded-full bg-primary px-3 py-1 text-sm font-bold text-white shadow-md">
+            {Math.floor(product.discountPercentage)}% OFF
+          </div>
+        )}
+        {/* Out of Stock Overlay */}
+  {Number(product.stock.availableQuantity) <= 0 && (
+     <div className="absolute inset-0 z-20 overflow-hidden">
+    <div className="absolute -left-12 top-8 -rotate-45 bg-red-600 px-12 py-3 text-sm font-bold tracking-widest text-white shadow-lg">
+      OUT OF STOCK
+    </div>
+  </div>
+  )}
                   <div className="px-4">
+
+  
                     <img
                       src={product.imageUrl}
                       alt={product.name}
@@ -140,8 +157,7 @@ const ProductLists = ({ data }: CollectionProps) => {
                         <p className="text-sm text-muted-foreground line-through">
                           {product.originalPrice == 0 || null
                             ? ""
-                            : product.originalPrice}
-                          {product.originalPrice == 0 || null ? "" : "ks"}
+                            : product.originalPrice }
                         </p>
                         <p className="font-bold text-primary">
                           {product.price} ks
@@ -152,7 +168,7 @@ const ProductLists = ({ data }: CollectionProps) => {
                           to={`/products/${product.id}`}
                           className="inline-flex h-10 w-30 items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow transition-colors hover:bg-primary/90"
                         >
-                          Buy Now
+                          See Details
                         </Link>
                       </div>
                     </div>

@@ -81,6 +81,7 @@ const Productspage = () => {
       return response.data
     },
   })
+
   const categories = useQuery({
     queryKey: ["categories"],
     queryFn: async () => {
@@ -89,7 +90,7 @@ const Productspage = () => {
     },
   })
 
-  if (products.isPending) {
+  if (products.isPending && categories.isPending) {
     return (
       <>
         <section className="mt-20 flex min-h-screen gap-6 px-[5%] py-10 max-md:flex-col">
@@ -232,7 +233,14 @@ const Productspage = () => {
           </div>
         ) : (
           <>
-            <ProductLists products={products.data?.items ?? []} />
+           {
+            products.isPending ? (<div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {Array.from({ length: 6 }, (_, index) => (
+              <ProductSkeleton key={index} />
+            ))}
+          </div>) : ( <ProductLists products={products.data?.items ?? []} />)
+              
+           }
             {products.data && (
               <motion.div
                 initial={{ opacity: 0, y: 15 }}

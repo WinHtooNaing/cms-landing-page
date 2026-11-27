@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { motion } from "motion/react"
-import { Lock, Mail } from "lucide-react"
+import { Eye, EyeOff, Lock, Mail } from "lucide-react"
 import { Link, useLocation, useNavigate } from "react-router-dom"
 import { Controller, useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -21,6 +21,7 @@ import { useAuthStore } from "@/store/user-store"
 const Login = () => {
   const navigate = useNavigate()
   const location = useLocation()
+  const [showPassword, setShowPassword] = useState(false)
   const requestedDestination = (location.state as { from?: string } | null)
     ?.from
   const destination =
@@ -60,7 +61,7 @@ const Login = () => {
             role,
           })
           setIsLoading(false)
-          toast.success("Account created successfully!")
+          toast.success("Logged in successfully!")
           navigate(destination, { replace: true })
         }
       } else {
@@ -131,7 +132,7 @@ const Login = () => {
                 )}
               />
 
-              <Controller
+              {/* <Controller
                 name="password"
                 control={form.control}
                 render={({ field, fieldState }) => (
@@ -163,7 +164,55 @@ const Login = () => {
                     )}
                   </Field>
                 )}
-              />
+              /> */}
+              <Controller
+  name="password"
+  control={form.control}
+  render={({ field, fieldState }) => (
+    <Field data-invalid={fieldState.invalid}>
+      <div className="flex items-center justify-between">
+        <FieldLabel className="text-sm font-medium">
+          Password
+        </FieldLabel>
+
+        <Link
+          to="/forgot-password"
+          className="text-xs text-primary transition-colors hover:text-primary/70"
+        >
+          Forgot password?
+        </Link>
+      </div>
+
+      <div className="relative">
+        <Lock className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+
+        <Input
+          {...field}
+          type={showPassword ? "text" : "password"}
+          placeholder="Enter your password"
+          className={`${fieldState.invalid ? "border-red-500" : ""} h-12 rounded-xl bg-white/30 pl-10 pr-12 backdrop-blur-xl focus-visible:border-primary focus-visible:ring-primary/50`}
+        />
+
+        <button
+          type="button"
+          onClick={() => setShowPassword((prev) => !prev)}
+          className="absolute top-1/2 right-3 -translate-y-1/2 text-muted-foreground transition-colors hover:text-primary"
+          aria-label={showPassword ? "Hide password" : "Show password"}
+        >
+          {showPassword ? (
+            <EyeOff className="h-5 w-5" />
+          ) : (
+            < Eye className="h-5 w-5" />
+          )}
+        </button>
+      </div>
+
+      {fieldState.invalid && (
+        <FieldError errors={[fieldState.error]} />
+      )}
+    </Field>
+  )}
+/>
 
               <motion.div whileTap={{ scale: 0.98 }}>
                 <Button

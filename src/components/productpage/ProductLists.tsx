@@ -3,13 +3,14 @@ import { ShoppingCartPlus, Star } from "lucide-react"
 import { cn } from "cn"
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip"
 import { toast } from "sonner"
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import { motion } from "motion/react"
 import type { newCollectionProps } from "@/api/products"
 import { useQueryClient } from "@tanstack/react-query"
-
 import { createAddToCart, type createAddToCartProps } from "@/api/addToCart"
-
+import { useAuthStore } from "@/store/user-store"
+import { useState } from "react"
+import { Spinner } from "../ui/spinner"
 type ProductListsProps = {
   products: newCollectionProps[]
 }
@@ -38,9 +39,13 @@ const cardVariants = {
 }
 
 const ProductLists = ({ products }: ProductListsProps) => {
+  const navigate = useNavigate()
+  const user = useAuthStore((state) => state.user)
+  const [loading, setLoading] = useState(false)
   const queryClient = useQueryClient()
   const addToCart = async (payload: createAddToCartProps) => {
     try {
+      setLoading(true)
       const response = await createAddToCart(payload)
       if (response.success) {
         toast.success("product added to cart", { position: "bottom-right" })
@@ -51,6 +56,8 @@ const ProductLists = ({ products }: ProductListsProps) => {
     } catch (err) {
       toast.error("something went wrong")
       console.log(err)
+    }finally {
+      setLoading(false)
     }
   }
 
@@ -81,6 +88,11 @@ const ProductLists = ({ products }: ProductListsProps) => {
                 className="h-full"
               >
                 <Card className="group h-full overflow-hidden rounded-2xl border border-white/60 bg-white/30 shadow-lg shadow-slate-200/40 backdrop-blur-xl transition-shadow duration-300 hover:shadow-xl hover:shadow-primary/10">
+                {product.discountPercentage > 0 && (
+          <div className="absolute right-3 top-3 z-10 rounded-full bg-primary px-3 py-1 text-sm font-bold text-white shadow-md">
+            {Math.floor(product.discountPercentage)}% OFF
+          </div>
+        )}
                   <CardContent className="p-3">
                     {/* Product Image */}
                     <div className="relative overflow-hidden rounded-xl">
@@ -89,7 +101,21 @@ const ProductLists = ({ products }: ProductListsProps) => {
                         alt={product.name}
                         className="h-60 w-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
                       />
+{product.stock.availableQuantity <= 0 && (
+    // <div className="absolute top-1.5 left-1.5 z-10 ">
+    //   {/* <span className="rounded-md bg-red-600 px-5 py-2 text-sm font-bold tracking-widest text-white shadow-xl">
+    //     OUT OF STOCK
+    //   </span> */}
+    //   <img src={OutOfStock} alt="Out of Stock" className="h-16 w-16" />
+    // </div>
+  
+  <div className="absolute inset-0 z-20 overflow-hidden">
+    <div className="absolute -left-12 top-8 -rotate-45 bg-red-600 px-12 py-3 text-sm font-bold tracking-widest text-white shadow-lg">
+      OUT OF STOCK
+    </div>
+  </div>
 
+  )}
                       <div className="pointer-events-none absolute inset-0 bg-linear-to-t from-black/10 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
                     </div>
 
@@ -115,7 +141,6 @@ const ProductLists = ({ products }: ProductListsProps) => {
                           {product.originalPrice == 0 || null
                             ? ""
                             : product.originalPrice}
-                          {product.originalPrice == 0 || null ? "" : "ks"}
                         </p>
                         <p className="font-bold text-primary">
                           {product.price} ks
@@ -150,16 +175,29 @@ const ProductLists = ({ products }: ProductListsProps) => {
                             render={
                               <button
                                 type="button"
-                                onClick={() =>
-                                  addToCart({
+                                
+                                onClick={() =>{
+                                  if (user === null) {
+                                    toast.error("Please login to add product to cart", { position: "top-right" })
+                                    navigate("/login")
+                                  }else{
+                                    
+
+                                    addToCart({
                                     productId: product.id,
                                     quantity: 1,
                                   })
+                                
+                                  }
+                                }
+                                  
                                 }
                                 aria-label={`Add ${product.name} to cart`}
-                                className="flex h-10 w-11 items-center justify-center rounded-lg border border-primary/30 bg-white/50 text-primary backdrop-blur-md transition-all duration-300 hover:border-primary hover:bg-primary hover:text-white"
+                                className={`flex h-10 w-11 items-center justify-center rounded-lg border border-primary/30 bg-white/50 text-primary backdrop-blur-md transition-all duration-300 hover:border-primary hover:bg-primary hover:text-white ${ product.stock.availableQuantity <= 0  ? "opacity-50 pointer-events-none" : ""} ${loading ? "opacity-50 pointer-events-none " : ""}`}
+                                disabled={product.stock.availableQuantity <= 0 || loading}
                               >
-                                <ShoppingCartPlus className="h-5 w-5" />
+                                
+                                {loading ? <Spinner className="mr-2 h-4 w-4" /> : <ShoppingCartPlus className="h-5 w-5" />}
                               </button>
                             }
                           />
@@ -170,7 +208,7 @@ const ProductLists = ({ products }: ProductListsProps) => {
                           to={`/products/${product.id}`}
                           className="inline-flex h-10 flex-1 items-center justify-center rounded-lg bg-linear-to-r from-primary to-primary/80 px-4 text-sm font-semibold text-primary-foreground shadow-md shadow-primary/20 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-primary/30"
                         >
-                          Buy Now
+                          See Details
                         </Link>
                       </div>
                     </div>
