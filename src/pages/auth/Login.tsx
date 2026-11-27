@@ -42,37 +42,50 @@ const Login = () => {
   const onSubmit = async (data: z.infer<typeof loginSchema>) => {
     try {
       setIsLoading(true)
-      const response = await login(data)
-      console.log("login response ", response.data)
-      const { accessToken, refreshToken, user } = response.data
-      const { id, name, email, phone, role } = user
-      if (response.success) {
-        if (role !== "CUSTOMER") {
-          throw new Error("Something went wrong")
-        } else {
-          localStorage.setItem("accessToken", accessToken)
-          localStorage.setItem("refreshToken", refreshToken)
 
-          setUser({
-            id,
-            name,
-            email,
-            phone,
-            role,
-          })
-          setIsLoading(false)
-          toast.success("Logged in successfully!")
-          navigate(destination, { replace: true })
-        }
-      } else {
+      const response = await login(data)
+
+      console.log("Login response:", response)
+
+      // Check whether login was successful FIRST
+      if (!response.success) {
         throw new Error(response.message || "Login failed")
       }
+
+      // Extract successful login data
+      const { accessToken, refreshToken, user } = response.data
+
+      const { id, name, email, phone, role } = user
+
+      // Only customers can access the storefront
+      if (role !== "CUSTOMER") {
+        throw new Error("You don't have permission to access this page.")
+      }
+
+      // Store authentication tokens
+      localStorage.setItem("accessToken", accessToken)
+      localStorage.setItem("refreshToken", refreshToken)
+
+      // Update Zustand store
+      setUser({
+        id,
+        name,
+        email,
+        phone,
+        role,
+      })
+
+      toast.success("Logged in successfully!")
+
+      navigate(destination, { replace: true })
     } catch (err) {
-      toast.error((err as Error).message || "An error occurred during Login")
+      toast.error(
+        err instanceof Error ? err.message : "An error occurred during login"
+      )
+    } finally {
       setIsLoading(false)
     }
   }
-
   useEffect(() => {
     if (user) {
       navigate(destination, { replace: true })
@@ -166,53 +179,55 @@ const Login = () => {
                 )}
               /> */}
               <Controller
-  name="password"
-  control={form.control}
-  render={({ field, fieldState }) => (
-    <Field data-invalid={fieldState.invalid}>
-      <div className="flex items-center justify-between">
-        <FieldLabel className="text-sm font-medium">
-          Password
-        </FieldLabel>
+                name="password"
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <div className="flex items-center justify-between">
+                      <FieldLabel className="text-sm font-medium">
+                        Password
+                      </FieldLabel>
 
-        <Link
-          to="/forgot-password"
-          className="text-xs text-primary transition-colors hover:text-primary/70"
-        >
-          Forgot password?
-        </Link>
-      </div>
+                      <Link
+                        to="/forgot-password"
+                        className="text-xs text-primary transition-colors hover:text-primary/70"
+                      >
+                        Forgot password?
+                      </Link>
+                    </div>
 
-      <div className="relative">
-        <Lock className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                    <div className="relative">
+                      <Lock className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
 
-        <Input
-          {...field}
-          type={showPassword ? "text" : "password"}
-          placeholder="Enter your password"
-          className={`${fieldState.invalid ? "border-red-500" : ""} h-12 rounded-xl bg-white/30 pl-10 pr-12 backdrop-blur-xl focus-visible:border-primary focus-visible:ring-primary/50`}
-        />
+                      <Input
+                        {...field}
+                        type={showPassword ? "text" : "password"}
+                        placeholder="Enter your password"
+                        className={`${fieldState.invalid ? "border-red-500" : ""} h-12 rounded-xl bg-white/30 pr-12 pl-10 backdrop-blur-xl focus-visible:border-primary focus-visible:ring-primary/50`}
+                      />
 
-        <button
-          type="button"
-          onClick={() => setShowPassword((prev) => !prev)}
-          className="absolute top-1/2 right-3 -translate-y-1/2 text-muted-foreground transition-colors hover:text-primary"
-          aria-label={showPassword ? "Hide password" : "Show password"}
-        >
-          {showPassword ? (
-            <EyeOff className="h-5 w-5" />
-          ) : (
-            < Eye className="h-5 w-5" />
-          )}
-        </button>
-      </div>
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword((prev) => !prev)}
+                        className="absolute top-1/2 right-3 -translate-y-1/2 text-muted-foreground transition-colors hover:text-primary"
+                        aria-label={
+                          showPassword ? "Hide password" : "Show password"
+                        }
+                      >
+                        {showPassword ? (
+                          <EyeOff className="h-5 w-5" />
+                        ) : (
+                          <Eye className="h-5 w-5" />
+                        )}
+                      </button>
+                    </div>
 
-      {fieldState.invalid && (
-        <FieldError errors={[fieldState.error]} />
-      )}
-    </Field>
-  )}
-/>
+                    {fieldState.invalid && (
+                      <FieldError errors={[fieldState.error]} />
+                    )}
+                  </Field>
+                )}
+              />
 
               <motion.div whileTap={{ scale: 0.98 }}>
                 <Button
