@@ -21,6 +21,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { CMS_DOCUMENT_KEYS } from "@/lib/cms-key"
 
 const Navbar = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
@@ -28,7 +29,7 @@ const Navbar = () => {
   const user = useAuthStore((state) => state.user)
 
   const { data: siteSettings } = useQuery({
-    queryKey: ["site-settings"],
+    queryKey: [CMS_DOCUMENT_KEYS.SITE_SETTINGS],
     queryFn: getLogoSection,
     staleTime: 0,
     refetchInterval: 30 * 1000,
