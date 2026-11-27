@@ -20,6 +20,7 @@ import logo from "../assets/logo.png"
 import { getFooterSection, type FooterItem } from "@/api/cms.footer"
 
 import { getContactSection } from "@/api/cms.contact"
+import { getLogoSection } from "@/api/cms.logo"
 
 // Social media icon mapping
 const socialIcons: Record<string, React.ElementType> = {
@@ -73,6 +74,20 @@ const SupportLink = ({ item }: { item: FooterItem }) => {
 }
 
 const Footer = () => {
+   const { data: siteSettings } = useQuery({
+      queryKey: ["site-settings"],
+      queryFn: getLogoSection,
+      staleTime: 0,
+      refetchInterval: 30 * 1000,
+    })
+  
+    const headerSection = siteSettings?.data.sections.find(
+      (section) => section.key === "header"
+    )
+  
+    const logoUrl = headerSection?.imageUrl || logo
+
+
   // Footer CMS Query
   const {
     data: footer,
@@ -170,7 +185,7 @@ const Footer = () => {
               to="/"
               className="inline-block text-2xl font-bold tracking-tight"
             >
-              <img src={logo} alt="Tech Haven" width={150} />
+              <img src={logoUrl} alt="Tech Haven" width={150} />
             </Link>
 
             <p className="mt-5 max-w-xs text-sm leading-7 text-muted-foreground">
