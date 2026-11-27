@@ -102,9 +102,10 @@ export function ImageCaarousel({ slides }: ImageCarouselProps) {
         </AnimatePresence>
 
         <div className="absolute bottom-5 left-1/2 z-20 flex -translate-x-1/2 items-center gap-2">
-          {slides.map((_, index) => (
+          {slides.map((slide, index) => (
             <button
-              key={slides[index].content.productId}
+             key={`${slide.content.productId ?? "slide"}-${index}`}
+
               type="button"
               onClick={() => setCurrentSlide(index)}
               aria-label={`Go to slide ${index + 1}`}
