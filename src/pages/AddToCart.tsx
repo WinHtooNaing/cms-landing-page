@@ -54,11 +54,10 @@ import { useRef, useState } from "react"
 import { Link } from "react-router-dom"
 import { toast } from "sonner"
 import axios from "axios"
-import KpayLogo from "/public/payments/kpay.png"
-import WavepayLogo from "/public/payments/WavePay.png"
-import QR from "/public/payments/qr.png"
 
-
+const KpayLogo = "/payments/kpay.png";
+const WavepayLogo = "/payments/WavePay.png";
+const QR = "/payments/qr.png";
 type CheckoutPayload = {
   order: CreateOrderPayload
   manualPayment: ManualPaymentPayload
