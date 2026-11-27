@@ -54,6 +54,10 @@ import { useRef, useState } from "react"
 import { Link } from "react-router-dom"
 import { toast } from "sonner"
 import axios from "axios"
+import KpayLogo from "/public/payments/kpay.png"
+import WavepayLogo from "/public/payments/WavePay.png"
+import QR from "/public/payments/qr.png"
+
 
 type CheckoutPayload = {
   order: CreateOrderPayload
@@ -502,7 +506,7 @@ const AddToCart = () => {
                                       mutationQty.isPending || item.quantity < 1
                                     }
                                     aria-label={`Decrease quantity for ${item.name}`}
-                                    className={`flex h-9 w-9 items-center justify-center rounded-full transition-colors hover:bg-white/60 dark:hover:bg-white/10 ${mutationQty.isPending || item.quantity < 1 ? "pointer-events-none cursor-not-allowed" : ""}`}
+                                    className={`flex h-9 w-9 items-center justify-center rounded-full transition-colors hover:bg-white/60 dark:hover:bg-white/10 ${mutationQty.isPending || item.quantity <= 1 ? "pointer-events-none cursor-not-allowed"  : ""}`}
                                   >
                                     <Minus className={`h-4 w-4`} />
                                   </motion.button>
@@ -622,14 +626,14 @@ const AddToCart = () => {
                           render={
                             <Button
                               size="lg"
-                              className="mt-5 w-full rounded-full shadow-lg shadow-primary/20 transition-all hover:shadow-primary/40"
+                              className="mt-5 w-full  shadow-lg shadow-primary/20 transition-all hover:shadow-primary/40"
                             >
                               Proceed to checkout
                             </Button>
                           }
                         />
 
-                        <DialogContent className="max-h-[90dvh] overflow-y-auto rounded-3xl border border-white/40 bg-background/80 shadow-2xl backdrop-blur-2xl sm:max-w-2xl dark:border-white/10">
+                        <DialogContent className="max-h-[90dvh] overflow-y-auto scrollbar-none rounded-3xl border border-white/40 bg-background/80 shadow-2xl backdrop-blur-2xl sm:max-w-2xl dark:border-white/10">
                           <DialogHeader>
                             <DialogTitle className="text-2xl font-bold">
                               Checkout
@@ -684,7 +688,7 @@ const AddToCart = () => {
                                       <Input
                                         id={field.name}
                                         name={field.name}
-                                        type="tel"
+                                        type="number"
                                         value={field.state.value}
                                         onBlur={field.handleBlur}
                                         onChange={(event) =>
@@ -772,24 +776,21 @@ const AddToCart = () => {
                                       aria-label="Payment provider"
                                     >
                                       {(
+                                      
                                         [
-                                          {
-                                            code: "KBZ_PAY",
-                                            name: "KBZ Pay",
-                                            detail: "Pay with KBZPay",
-                                            mark: "K",
-                                            colors:
-                                              "bg-blue-600 text-white shadow-blue-600/20",
-                                          },
-                                          {
-                                            code: "WAVE_MONEY",
-                                            name: "Wave Pay",
-                                            detail: "Pay with Wave Money",
-                                            mark: "W",
-                                            colors:
-                                              "bg-yellow-500 text-white shadow-yellow-500/20",
-                                          },
-                                        ] as const
+    {
+      code: "KBZ_PAY",
+      name: "KBZ Pay",
+      detail: "Pay with KBZPay",
+      logo: KpayLogo,
+    },
+    {
+      code: "WAVE_MONEY",
+      name: "Wave Pay",
+      detail: "Pay with Wave Money",
+      logo: WavepayLogo,
+    },
+  ] as const
                                       ).map((provider) => {
                                         const selected =
                                           field.state.value === provider.code
@@ -807,11 +808,12 @@ const AddToCart = () => {
                                                 : "border-border bg-card/60 hover:border-primary/40"
                                             }`}
                                           >
-                                            <span
-                                              className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl text-xl font-bold shadow-lg ${provider.colors}`}
-                                            >
-                                              {provider.mark}
-                                            </span>
+                                           
+                                            <img
+        src={provider.logo}
+        alt={`${provider.name} logo`}
+        className="h-12 w-12 rounded-xl object-contain"
+      />
                                             <span className="min-w-0 flex-1">
                                               <span className="block font-semibold">
                                                 {provider.name}
@@ -850,9 +852,7 @@ const AddToCart = () => {
                                     <div className="relative mx-auto w-full max-w-44 overflow-hidden rounded-xl border bg-white p-2 shadow-sm">
                                       <img
                                         src={
-                                          selectedProvider === "KBZ_PAY"
-                                            ? "/kbz-pay-demo-qr.svg"
-                                            : "/wave-pay-demo-qr.svg"
+                                          QR
                                         }
                                         alt={`${selectedProvider === "KBZ_PAY" ? "KBZ Pay" : "Wave Pay"} demo QR code, not for payment`}
                                         className="h-auto w-full"
@@ -888,6 +888,7 @@ const AddToCart = () => {
                                     <Input
                                       id={field.name}
                                       name={field.name}
+                                      type="number"
                                       value={field.state.value}
                                       onBlur={field.handleBlur}
                                       onChange={(event) =>
@@ -941,7 +942,6 @@ const AddToCart = () => {
                                 <Button
                                   type="button"
                                   variant="outline"
-                                  className="rounded-full"
                                 >
                                   Cancel
                                 </Button>
@@ -950,7 +950,7 @@ const AddToCart = () => {
                               <Button
                                 type="submit"
                                 disabled={checkoutMutation.isPending}
-                                className="gap-2 rounded-full"
+                                className="gap-2 "
                               >
                                 <ShieldCheck className="h-4 w-4" />
                                 {checkoutMutation.isPending
@@ -964,8 +964,8 @@ const AddToCart = () => {
 
                       <Link to="/products" className="block">
                         <Button
-                          variant="outline"
-                          className="mt-3 w-full gap-2 rounded-full border-white/50 bg-white/20 backdrop-blur-xl hover:bg-white/40 dark:border-white/10 dark:bg-white/5 dark:hover:bg-white/10"
+                          variant="secondary"
+                          className="mt-3 w-full gap-2"
                         >
                           <ArrowLeft className="h-4 w-4" />
                           Continue shopping

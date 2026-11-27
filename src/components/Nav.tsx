@@ -49,9 +49,7 @@ const Navbar = () => {
     },
     enabled: user?.role === "CUSTOMER",
   })
-
-  const cartCount =
-    cartItems?.reduce((total, item) => total + item.quantity, 0) ?? 0
+  
 
   // Navigation Links
   const navLinks = [
@@ -117,7 +115,7 @@ const Navbar = () => {
 
               <AnimatePresence mode="popLayout">
                 <motion.span
-                  key={cartCount}
+                  key={cartItems?.length || 0}
                   initial={{ scale: 0, opacity: 0, y: -8 }}
                   animate={{ scale: 1, opacity: 1, y: 0 }}
                   exit={{ scale: 0, opacity: 0, y: 8 }}
@@ -128,14 +126,12 @@ const Navbar = () => {
                   }}
                   className="absolute -top-1 -right-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1 text-xs font-bold text-primary-foreground"
                 >
-                  {cartCount}
+                  {cartItems?.length || 0}
                 </motion.span>
               </AnimatePresence>
             </Link>
           )}
-
-          {/* User Account */}
-          <div className="max-sm:hidden">
+          <div className="">
             {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger
